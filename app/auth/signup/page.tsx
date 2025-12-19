@@ -10,8 +10,6 @@ export default async function SignupPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log("Current user on signup page:", user);
-
   if (user) {
     redirect("/auth/success");
   }
