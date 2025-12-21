@@ -1,21 +1,41 @@
+"use client";
+
 import {
   FieldGroup,
   FieldSet,
   FieldLegend,
   Field,
   FieldLabel,
+  FieldDescription,
 } from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { useActionState } from "react";
+import { signUpAction } from "@/lib/actions";
 
 export function SignUpForm() {
+  const [state, formAction, pending] = useActionState(signUpAction, {
+    email: { value: "", error: undefined },
+    firstName: { value: "", error: undefined },
+    lastName: { value: "", error: undefined },
+    password: { value: "", error: undefined },
+    confirmPassword: { value: "", error: undefined },
+    success: false,
+  });
+
   return (
-    <form>
+    <form action={formAction}>
       <FieldSet>
         <FieldLegend className="font-bold mb-6">
           Create your account
         </FieldLegend>
+        <FieldDescription className="text-primary h-2 mb-4">
+          {state.success
+            ? "Account created successfully! Please check your email to verify your account."
+            : "Provide details for your account"}
+        </FieldDescription>
         <FieldGroup>
           <Field>
             <FieldLabel>Email</FieldLabel>
@@ -24,28 +44,34 @@ export function SignUpForm() {
               type="email"
               name="email"
               placeholder="sample@gmail.com"
+              defaultValue={state.email.value}
               required
             />
+            <FieldDescription>{state.email.error}</FieldDescription>
           </Field>
           <Field>
             <FieldLabel>First name</FieldLabel>
             <Input
-              id="first-name"
+              id="firstName"
               type="text"
-              name="fist-name"
+              name="firstName"
               placeholder="John"
+              defaultValue={state.firstName.value}
               required
             />
+            <FieldDescription>{state.firstName.error}</FieldDescription>
           </Field>
           <Field>
             <FieldLabel>Last name</FieldLabel>
             <Input
-              id="last-name"
+              id="lastName"
               type="text"
-              name="last-name"
+              name="lastName"
               placeholder="Doe"
+              defaultValue={state.lastName.value}
               required
             />
+            <FieldDescription>{state.lastName.error}</FieldDescription>
           </Field>
           <Field>
             <FieldLabel>Password</FieldLabel>
@@ -56,19 +82,23 @@ export function SignUpForm() {
               placeholder="Password"
               required
             />
+            <FieldDescription>{state.password.error}</FieldDescription>
           </Field>
           <Field>
             <FieldLabel>Confirm password</FieldLabel>
             <Input
               id="confirm-password"
               type="password"
-              name="confirm-password"
+              name="confirmPassword"
               placeholder="Confirm password"
               required
             />
+            <FieldDescription>{state.confirmPassword.error}</FieldDescription>
           </Field>
         </FieldGroup>
-        <Button>Create account</Button>
+        <Button type="submit" disabled={pending}>
+          {pending && <Spinner className="text-white w-5 h-5" />} Create account
+        </Button>
       </FieldSet>
     </form>
   );
