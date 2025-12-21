@@ -3,18 +3,19 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
+import { useCallback } from "react";
 
 export function LoginWithGoogle() {
-  const loginWithGoogle = async () => {
-    const supabase = await createClient();
-    
+  const supabase = createClient();
+
+  const loginWithGoogle = useCallback(async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
       },
     });
-  };
+  }, [supabase]);
 
   return (
     <Button
