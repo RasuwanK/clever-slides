@@ -17,6 +17,12 @@ export type SignUpFormState = {
   confirmPassword: Field;
 };
 
+export type SignInFormState = {
+  success: boolean;
+  email: Field;
+  password: Field;
+}
+
 const SignUpSchema = z.object({
   email: z.email("Invalid email address"),
   firstName: z.string().min(1, "First name is required"),
@@ -72,5 +78,54 @@ export async function signUpAction(
   return {
       ...initialState,
       success: true,
+  };
+}
+
+export async function signInAction(initialState: SignInFormState, formData: FormData) {
+  const rawFormData = {
+    email: formData.get("email"),
+    password: formData.get("password"),
+  };
+
+  const signInSchema = z.object({
+    email: z.email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+  });
+
+  const validatedData = signInSchema.safeParse(rawFormData);
+
+  if (!validatedData.success) {
+    const errors = validatedData.error.flatten().fieldErrors;
+    console.log("Validation error:", errors);
+    return {
+      ...initialState,
+      email: { value: rawFormData.email as string, error: errors.email?.[0] },
+      password: { value: rawFormData.password as string, error: errors.password?.[0] },
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: validatedData.data.email,
+    password: validatedData.data.password,
+  });
+
+  if (error) {
+    console.log("Supabase sign-in error:", error.message);
+    return {
+      ...initialState,
+      email: { value: rawFormData.email as string },
+      password: { value: rawFormData.password as string },
+    };
+  }
+
+  console.log("User signed in successfully:", data.user);
+
+  return {
+      ...initialState,
+      success: true,
+      email: { value: "" },
+      password: { value: "" },
   };
 }
