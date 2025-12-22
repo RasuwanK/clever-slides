@@ -37,6 +37,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Supabase setup for local development
 
+# Important: For Authentication
+
+Use only password login for local development. For testing provider login use Supabase cloud instance.
+
 This guide provides how to initialize a local supabase instance from scratch by pulling the cloud supabase instance of this project, clever-slides.
 
 First of all you need to install [Docker](https://docs.docker.com/engine/install/) and [Supabase Cli](https://supabase.com/docs/guides/local-development/cli/getting-started?queryGroups=platform&platform=windows&queryGroups=access-method&access-method=studio)
