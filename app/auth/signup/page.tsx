@@ -2,8 +2,6 @@ import { SignUpForm } from "./signup-form";
 import Link from "next/link";
 
 export default async function SignupPage() {
-  
-
   return (
     <>
       <SignUpForm />
