@@ -1,6 +1,6 @@
 "use server";
 
-import { success, z } from "zod";
+import { z } from "zod";
 import { createClient } from "./supabase/server";
 
 type Field = {
