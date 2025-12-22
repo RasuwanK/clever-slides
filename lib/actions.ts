@@ -66,19 +66,20 @@ export async function signUpAction(
 
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.signUp({
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email: validatedData.data.email,
     password: validatedData.data.password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/`,
-    },
+      data: {
+        first_name: validatedData.data.firstName,
+        last_name: validatedData.data.lastName,
+      }
+    }
   });
 
-  if (error) {
-    console.log("Supabase sign-up error:", error.message);
-
+  if (signUpError) {
     return {
-      message: error.message,
+      message: signUpError.message,
       success: false,
       email: { value: rawFormData.email as string },
       firstName: { value: rawFormData.firstName as string },
@@ -87,8 +88,6 @@ export async function signUpAction(
       confirmPassword: { value: rawFormData.confirmPassword as string },
     };
   }
-
-  console.log("User signed up successfully:", data.user);
 
   return {
     ...initialState,
