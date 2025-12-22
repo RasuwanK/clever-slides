@@ -1,7 +1,7 @@
 "use server";
 
-import { z } from "zod";
 import { createClient } from "./supabase/server";
+import { SignUpSchema, SignInSchema } from "./schema";
 
 type Field = {
   value: string;
@@ -10,6 +10,7 @@ type Field = {
 
 export type SignUpFormState = {
   success: boolean;
+  message?: string;
   email: Field;
   firstName: Field;
   lastName: Field;
@@ -19,19 +20,10 @@ export type SignUpFormState = {
 
 export type SignInFormState = {
   success: boolean;
+  message?: string;
   email: Field;
   password: Field;
-}
-
-const SignUpSchema = z.object({
-  email: z.email("Invalid email address"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-  confirmPassword: z
-    .string()
-    .min(8, "Confirm Password must be at least 8 characters long"),
-});
+};
 
 export async function signUpAction(
   initialState: SignUpFormState,
@@ -49,9 +41,26 @@ export async function signUpAction(
 
   if (!validatedData.success) {
     const errors = validatedData.error.flatten().fieldErrors;
-    console.log("Validation error:", errors);
     return {
-      ...initialState,
+      success: false,
+      message: "Invalid input data",
+      email: { value: rawFormData.email as string, error: errors.email?.[0] },
+      firstName: {
+        value: rawFormData.firstName as string,
+        error: errors.firstName?.[0],
+      },
+      lastName: {
+        value: rawFormData.lastName as string,
+        error: errors.lastName?.[0],
+      },
+      password: {
+        value: rawFormData.password as string,
+        error: errors.password?.[0],
+      },
+      confirmPassword: {
+        value: rawFormData.confirmPassword as string,
+        error: errors.confirmPassword?.[0],
+      },
     };
   }
 
@@ -69,30 +78,36 @@ export async function signUpAction(
     console.log("Supabase sign-up error:", error.message);
 
     return {
-      ...initialState,
+      message: error.message,
+      success: false,
+      email: { value: rawFormData.email as string },
+      firstName: { value: rawFormData.firstName as string },
+      lastName: { value: rawFormData.lastName as string },
+      password: { value: rawFormData.password as string },
+      confirmPassword: { value: rawFormData.confirmPassword as string },
     };
   }
 
   console.log("User signed up successfully:", data.user);
 
   return {
-      ...initialState,
-      success: true,
+    ...initialState,
+    success: true,
+    message:
+      "Sign-up successful! Please check your email to confirm your account.",
   };
 }
 
-export async function signInAction(initialState: SignInFormState, formData: FormData) {
+export async function signInAction(
+  initialState: SignInFormState,
+  formData: FormData
+) {
   const rawFormData = {
     email: formData.get("email"),
     password: formData.get("password"),
   };
 
-  const signInSchema = z.object({
-    email: z.email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters long"),
-  });
-
-  const validatedData = signInSchema.safeParse(rawFormData);
+  const validatedData = SignInSchema.safeParse(rawFormData);
 
   if (!validatedData.success) {
     const errors = validatedData.error.flatten().fieldErrors;
@@ -100,7 +115,10 @@ export async function signInAction(initialState: SignInFormState, formData: Form
     return {
       ...initialState,
       email: { value: rawFormData.email as string, error: errors.email?.[0] },
-      password: { value: rawFormData.password as string, error: errors.password?.[0] },
+      password: {
+        value: rawFormData.password as string,
+        error: errors.password?.[0],
+      },
     };
   }
 
@@ -112,20 +130,18 @@ export async function signInAction(initialState: SignInFormState, formData: Form
   });
 
   if (error) {
-    console.log("Supabase sign-in error:", error.message);
     return {
       ...initialState,
       email: { value: rawFormData.email as string },
       password: { value: rawFormData.password as string },
+      message: error.message,
+      success: false,
     };
   }
 
-  console.log("User signed in successfully:", data.user);
-
   return {
-      ...initialState,
-      success: true,
-      email: { value: "" },
-      password: { value: "" },
+    ...initialState,
+    success: true,
+    message: "Sign-in successful!",
   };
 }

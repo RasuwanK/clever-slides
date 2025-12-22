@@ -23,6 +23,7 @@ export function SignUpForm() {
     password: { value: "", error: undefined },
     confirmPassword: { value: "", error: undefined },
     success: false,
+    message: "",
   });
 
   return (
@@ -32,9 +33,7 @@ export function SignUpForm() {
           Create your account
         </FieldLegend>
         <FieldDescription className="text-primary h-2 mb-4">
-          {state.success
-            ? "Account created successfully! Please check your email to verify your account."
-            : "Provide details for your account"}
+          {state.message}
         </FieldDescription>
         <FieldGroup>
           <Field>

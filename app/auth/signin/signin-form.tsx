@@ -12,11 +12,15 @@ export function LoginForm() {
     email: { value: "", error: undefined },
     password: { value: "", error: undefined },
     success: false,
+    message: "",
   });
   return (
     <form action={formAction}>
       <FieldSet>
         <FieldLegend className="font-bold mb-6">Sign in to your account</FieldLegend>
+        <FieldDescription className="text-primary h-2 mb-4">
+          {state.message}
+        </FieldDescription>
         <FieldGroup>
           <Field>
             <FieldLabel>Email</FieldLabel>
