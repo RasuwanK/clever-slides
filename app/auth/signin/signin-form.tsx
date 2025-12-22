@@ -22,6 +22,7 @@ export function LoginForm() {
             <FieldLabel>Email</FieldLabel>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="sample@gmail.com"
               defaultValue={state.email.value}
@@ -33,6 +34,7 @@ export function LoginForm() {
             <FieldLabel>Password</FieldLabel>
             <Input
               id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
               defaultValue={state.password.value}
