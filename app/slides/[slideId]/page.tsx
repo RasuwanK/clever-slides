@@ -1,3 +1,3 @@
-export default async function Slides() {
-    return <div>adada</div>
-} 
+export default async function SlidePage({ params }: { params: { slideId: string } }) {
+    return <div>Slide ID: {params.slideId}</div>;
+}
