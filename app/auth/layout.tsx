@@ -13,7 +13,8 @@ export default async function LoginLayout({
     } = await supabase.auth.getUser();
   
     if (user) {
-      redirect("/auth/success");
+      // TODO: Fix this to redirect to dashboard instead of home
+      redirect("/");
     }
 
   return (
