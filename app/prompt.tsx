@@ -2,29 +2,60 @@
 
 import { Typewriter } from "@/components/ui/typewriter";
 import { TextAreaWithButton } from "@/components/ui/textarea-with-button";
-import { useGeneratePresentation } from "@/components/ui/hooks/use-generate-presentation";
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { redirect, useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
+import { createPresentation, type PresentationInsert } from "@/lib/utils";
 
-export default function Prompt() {
-  const generate = useGeneratePresentation();
+export default function Prompt({ userId }: { userId?: string }) {
   const promptRef = useRef<HTMLTextAreaElement>(null);
+  const router = useRouter();
+  const supabase = createClient();
+  const mutation = useMutation({
+    mutationFn: async (data: PresentationInsert) => {
+      return createPresentation(supabase, data);
+    },
+
+    onSuccess: (data) => {
+      const id = data[0].id;
+      // Clearing out the session
+      router.push(`/editor/${id}`);
+    },
+
+    onError: () => {
+      console.log("Error while creating the presentation");
+    },
+
+    onSettled: () => {
+      localStorage.removeItem("prompt");
+    }
+  });
+
+  useEffect(() => {
+    if (localStorage.getItem("prompt")) {
+      mutation.mutate({
+        prompt: localStorage.getItem("prompt"),
+        created_by: userId,
+      });
+    }
+  }, []);
 
   const onGenerate = useCallback(() => {
-    if(promptRef.current) {
-        generate.mutate({
-            topic: promptRef.current.value,
-            audience: "Formal Audience",
-            slides: 5
-        }, {
-            onSuccess: (data) => {
-                console.log("Done: ", data);
-            },
-            onError: (error) => {
-                console.log("Error: ", error);
-            }
-        });
+    if (!promptRef.current) return;
+    // No generation for un authenticated users
+
+    if (!userId) {
+      // Save the prompt and redirect to sign in page
+      localStorage.setItem("prompt", promptRef.current.value);
+      router.push("/auth/signin");
     }
-  }, [generate]);
+
+    mutation.mutate({
+      prompt: promptRef.current.value,
+      created_by: userId,
+    });
+  }, []);
 
   return (
     <>
@@ -36,15 +67,11 @@ export default function Prompt() {
           />
           <p className="text-xl">Create presentations with a single prompt</p>
         </header>
-          <TextAreaWithButton
-            ref={promptRef}
-            onClick={onGenerate}
-            placeholder="Create a professional presentation for a pitch deck about an AI startup"
-          />
-        <div id="drafts" className="mt-10 flex flex-col gap-4 items-center">
-            <h1>Recents</h1>
-            <div className="grid grid-cols-3 gap-4"></div>
-          </div>
+        <TextAreaWithButton
+          ref={promptRef}
+          onClick={onGenerate}
+          placeholder="Create a professional presentation for a pitch deck about an AI startup"
+        />
       </div>
     </>
   );
