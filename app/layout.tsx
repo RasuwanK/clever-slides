@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Rubik } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/components/ui/hooks/query-provider";
 
-const rubik = Rubik({
+
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-rubik",
-});
+  variable: "--font-inter",
+})
 
 export const metadata: Metadata = {
   title: "Clever Slides: An AI based presentation generator",
@@ -22,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <QueryProvider>
-        <body className={`${rubik.variable} ${rubik.className} antialiased`}>
+        <body className={`${inter.variable} ${inter.className} antialiased bg-black text-white bg-radial from-primary/30`}>
           {children}
         </body>
       </QueryProvider>

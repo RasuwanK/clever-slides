@@ -23,11 +23,11 @@ export default async function LoginLayout({
         <div className="flex flex-col justify-center min-w-125 p-10">
           {children}
         </div>
-        <aside className="flex flex-col justify-center p-10 w-[70%] bg-primary">
-          <h1 className="text-5xl capitalize font-bold text-primary-foreground space-y-2">
+        <aside className="flex flex-col justify-center p-10 w-[70%]">
+          <h1 className="text-6xl capitalize font-bold text-primary-foreground space-y-2">
             <span>Create your slides</span>
             <br />
-            <span className="text-4xl">the right way.</span>
+            <span className="text-5xl lowercase">the <span className="text-primary">right way.</span></span>
           </h1>
           <p className="text-xl text-white mt-5">
             Login to use the world&apos;s best AI presentation generator
