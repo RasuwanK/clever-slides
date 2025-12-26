@@ -1,7 +1,6 @@
 import { Logo } from "@/components/ui/logo";
 import { AuthStatus } from "@/components/ui/auth-status";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import Prompt from "./prompt";
 
 export default async function Home() {
@@ -31,7 +30,7 @@ export default async function Home() {
           id="centered"
           className="flex flex-col gap-5 min-h-screen items-center"
         >
-          <Prompt />
+          <Prompt userId={user?.id} />
         </div>
         <footer className="min-h-20 flex flex-col items-center justify-center w-full bg-primary">
           <p className="text-white">Created by Rasuwan Kalhara</p>
