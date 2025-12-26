@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import "./globals.css";
+import { QueryProvider } from "@/components/ui/hooks/query-provider";
 
 const rubik = Rubik({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-rubik"
+  variable: "--font-rubik",
 });
 
 export const metadata: Metadata = {
@@ -20,11 +21,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${rubik.variable} ${rubik.className} antialiased`}
-      >
-        {children}
-      </body>
+      <QueryProvider>
+        <body className={`${rubik.variable} ${rubik.className} antialiased`}>
+          {children}
+        </body>
+      </QueryProvider>
     </html>
   );
 }

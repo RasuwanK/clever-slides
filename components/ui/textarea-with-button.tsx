@@ -1,4 +1,4 @@
-import type { ComponentProps } from "react";
+import { type ComponentProps, forwardRef } from "react";
 import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { cn } from "@/lib/utils";
@@ -6,12 +6,17 @@ import { cn } from "@/lib/utils";
 interface TextAreaWithButtonProps {
   className?: string;
   placeholder?: string;
+  onClick?: ComponentProps<"button">["onClick"];
 }
 
-export function TextAreaWithButton({
+export const TextAreaWithButton = forwardRef<
+  HTMLTextAreaElement,
+  TextAreaWithButtonProps
+>(function _TextAreaWithButton({
   placeholder,
   className,
-}: TextAreaWithButtonProps) {
+  onClick,
+}: TextAreaWithButtonProps, ref) {
   return (
     <div
       className={cn(
@@ -20,12 +25,13 @@ export function TextAreaWithButton({
       )}
     >
       <Textarea
+        ref={ref}
         rows={1}
         cols={1}
         placeholder={placeholder}
         className="min-h-0 shadow-none border-0 focus-visible:border-none resize-none focus-visible:ring-0"
       />
-      <Button>Generate</Button>
+      <Button onClick={onClick}>Generate</Button>
     </div>
   );
-}
+});
