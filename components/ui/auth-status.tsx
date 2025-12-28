@@ -76,7 +76,7 @@ export const AccountButton = forwardRef<HTMLButtonElement, AuthStatusProps>(
   }
 );
 
-export function AuthStatus({ isAuth, user }: AuthStatusProps) {
+export default function AuthStatus({ isAuth, user }: AuthStatusProps) {
   const supabase = createClient();
   const router = useRouter();
 
