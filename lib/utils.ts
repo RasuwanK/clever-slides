@@ -3,8 +3,12 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Database } from "./supabase/database.types";
 
-export type PresentationRow = Database["public"]["Tables"]["Presentation"]["Row"]
-export type PresentationInsert = Database["public"]["Tables"]["Presentation"]["Insert"];
+export type PresentationRow =
+  Database["public"]["Tables"]["Presentation"]["Row"];
+export type PresentationInsert =
+  Database["public"]["Tables"]["Presentation"]["Insert"];
+
+export type PresentationDrafts = Pick<Database["public"]["Tables"]["Presentation"]["Row"], "id" | "created_at" | "content" | "prompt">;
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -38,15 +42,34 @@ export async function generatePresentation(payload: {
 export async function createPresentation(
   client: SupabaseClient<Database>,
   data: PresentationInsert
+): Promise<PresentationDrafts[]> {
+  const res = await client
+    .from("Presentation")
+    .insert([{ ...data }])
+    .select();
+
+  // Error while creating the presentation
+  if (res.error) {
+    throw new Error("Error while creating an empty presentation");
+  }
+
+  return res.data;
+}
+
+export async function getRecentPresentations(
+  client: SupabaseClient<Database>,
+  data: {
+    userId: string;
+  }
 ) {
   const res = await client
     .from("Presentation")
-    .insert([{ ...data }]).select();
+    .select("id,created_at,content,prompt")
+    .eq("created_by", data.userId);
 
-  // Error while creating the presentation
   if(res.error) {
-    throw new Error("Error while creating an empty presentation");
+    throw new Error("Error while getting presentations");
   }
-  
+
   return res.data;
 }
