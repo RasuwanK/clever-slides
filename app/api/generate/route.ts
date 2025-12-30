@@ -7,9 +7,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   const messages = buildPresentationPrompt({
-    topic: body.topic,
-    audience: body.audience,
-    slides: body.slides,
+    prompt: body.prompt
   });
 
   const completion = await groq.chat.completions.create({
