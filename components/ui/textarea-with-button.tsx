@@ -8,13 +8,14 @@ interface TextAreaWithButtonProps {
   className?: string;
   placeholder?: string;
   onClick?: ComponentProps<"button">["onClick"];
+  defaultValue?: ComponentProps<"textarea">["defaultValue"];
 }
 
 export const TextAreaWithButton = forwardRef<
   HTMLTextAreaElement,
   TextAreaWithButtonProps
 >(function _TextAreaWithButton(
-  { placeholder, className, onClick }: TextAreaWithButtonProps,
+  { placeholder, className, defaultValue, onClick }: TextAreaWithButtonProps,
   ref
 ) {
   return (
@@ -29,6 +30,7 @@ export const TextAreaWithButton = forwardRef<
         rows={5}
         cols={1}
         placeholder={placeholder}
+        defaultValue={defaultValue}
         className="min-h-0 shadow-none border-0 focus-visible:border-none resize-none focus-visible:ring-0"
       />
       <div id="toolbar" className="flex flex-row items-center w-full">
