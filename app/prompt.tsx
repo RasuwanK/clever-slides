@@ -20,24 +20,23 @@ export default function Prompt({ userId }: { userId?: string }) {
     onSuccess: (data) => {
       const id = data[0].id;
       // Clearing out the session
+      sessionStorage.removeItem("prompt")
       router.push(`/editor/${id}`);
     },
 
     onError: () => {
       console.log("Error while creating the presentation");
     },
-
-    onSettled: () => {
-      localStorage.removeItem("prompt");
-    }
   });
 
   useEffect(() => {
-    if (localStorage.getItem("prompt")) {
+    if (!promptRef.current) return;
+
+    if (sessionStorage.getItem("prompt") && userId) {
       mutation.mutate({
-        prompt: localStorage.getItem("prompt"),
-        created_by: userId,
-      });
+        prompt: sessionStorage.getItem("prompt"),
+        created_by: userId
+      })
     }
   }, []);
 
@@ -47,15 +46,16 @@ export default function Prompt({ userId }: { userId?: string }) {
 
     if (!userId) {
       // Save the prompt and redirect to sign in page
-      localStorage.setItem("prompt", promptRef.current.value);
+      sessionStorage.setItem("prompt", promptRef.current.value);
       router.push("/auth/signin");
+      return;
     }
 
     mutation.mutate({
       prompt: promptRef.current.value,
       created_by: userId,
     });
-  }, []);
+  }, [mutation, promptRef, userId, router]);
 
   return (
     <>
@@ -70,6 +70,7 @@ export default function Prompt({ userId }: { userId?: string }) {
         <TextAreaWithButton
           ref={promptRef}
           onClick={onGenerate}
+          defaultValue={""}
           placeholder="Create a professional presentation for a pitch deck about an AI startup"
         />
       </div>
