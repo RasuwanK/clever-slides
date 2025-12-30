@@ -15,9 +15,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export async function generatePresentation(payload: {
-  topic: string;
-  audience: string;
-  slides: number;
+  prompt: string;
 }) {
   const response = await fetch("/api/generate", {
     method: "POST",
@@ -67,9 +65,29 @@ export async function getRecentPresentations(
     .select("id,created_at,content,prompt")
     .eq("created_by", data.userId);
 
-  if(res.error) {
+  if (res.error) {
     throw new Error("Error while getting presentations");
   }
 
   return res.data;
+}
+
+export async function getPresenstation(
+  client: SupabaseClient<Database>,
+  data: {
+    presentationId: string;
+    userId: string;
+  }
+) {
+  const res = await client
+    .from("Presentation")
+    .select("id,content,created_by,prompt,theme")
+    .eq("id", data.presentationId)
+    .eq("created_by", data.userId);
+
+  if (res.error) {
+    throw new Error("Error while getting presentatio");
+  }
+
+  return res.data
 }
