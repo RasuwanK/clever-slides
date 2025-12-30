@@ -1,7 +1,6 @@
 import { Logo } from "@/components/ui/logo";
 import { createClient } from "@/lib/supabase/server";
 import Prompt from "./prompt";
-import Recents from "./recents";
 import {
   dehydrate,
   HydrationBoundary,
@@ -10,6 +9,7 @@ import {
 import { redirect } from "next/navigation";
 import { getRecentPresentations } from "@/lib/utils";
 import { AuthStatus } from "@/components/ui/dynamic/auth-status";
+import Recents from "./recents";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -20,12 +20,13 @@ export default async function Home() {
 
   const queryClient = new QueryClient();
 
-  if (!user) redirect("/auth/signin");
+  if (user) {
+    await queryClient.prefetchQuery({
+      queryKey: ["recents", user?.id],
+      queryFn: () => getRecentPresentations(supabase, { userId: user.id }),
+    });
+  }
 
-  await queryClient.prefetchQuery({
-    queryKey: ["recents", user.id],
-    queryFn: () => getRecentPresentations(supabase, { userId: user.id }),
-  });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -49,7 +50,7 @@ export default async function Home() {
             className="flex flex-col gap-5 min-h-screen items-center"
           >
             <Prompt userId={user?.id} />
-            {user && <Recents userId={user.id} />}
+            {user?.id && <Recents userId={user.id} />}
           </div>
           {/* <footer className="min-h-20 flex flex-col items-center justify-center w-full bg-primary">
             <p className="text-white">Created by Rasuwan Kalhara</p>
