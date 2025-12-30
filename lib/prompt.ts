@@ -2,9 +2,7 @@
 import type { ChatCompletionMessageParam } from "groq-sdk/resources/chat";
 
 export function buildPresentationPrompt(input: {
-  topic: string;
-  audience: string;
-  slides: number;
+  prompt: string;
 }): ChatCompletionMessageParam[] {
   const systemPrompt = `
 You are an expert presentation content generator.
@@ -28,6 +26,11 @@ Design principles:
 - Bullets must be concise (≤ 12 words)
 - Strong visual hierarchy
 - Professional tone
+- Pick an overall title for the presentation
+- Include a cover slide with the picked title
+- Take number of slides based on the user prompt
+- If no slide number is mentioned take suitable amount of slides
+- Don't exceed the total count of 20 slides when no slide number is mentioned
 
 Color rules:
 - Provide exactly ONE accent color in HEX
@@ -57,9 +60,7 @@ Schema:
 `;
 
   const userPrompt = `
-Topic: ${input.topic}
-Audience: ${input.audience}
-Number of slides: ${input.slides}
+Prompt: ${input.prompt}
 `;
 
   return [
