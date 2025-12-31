@@ -2,7 +2,7 @@ import { QueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation';
 import { getPresenstation } from '@/lib/utils';
-import Editor from '../editor';
+import EditorContainer from '../editor-container';
 
 export default async function EditorPage({
   params
@@ -19,7 +19,7 @@ export default async function EditorPage({
 
   // loading the presentation prior to page load
   await queryClient.prefetchQuery({
-    queryKey: ["presentation"],
+    queryKey: ["getPresentation"],
     queryFn: () => getPresenstation(supabase, {
       presentationId: slideId,
       userId: user.id
@@ -29,7 +29,7 @@ export default async function EditorPage({
   return (
     <div className="flex flex-col">
       <main className="h-screen">
-        <Editor presentationId={slideId} userId={user.id} />
+        <EditorContainer presentationId={slideId} userId={user.id} />
       </main>
     </div>
   )

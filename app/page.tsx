@@ -6,7 +6,6 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { redirect } from "next/navigation";
 import { getRecentPresentations } from "@/lib/utils";
 import { AuthStatus } from "@/components/ui/dynamic/auth-status";
 import Recents from "./recents";
@@ -26,8 +25,7 @@ export default async function Home() {
       queryFn: () => getRecentPresentations(supabase, { userId: user.id }),
     });
   }
-
-
+  
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex flex-col">

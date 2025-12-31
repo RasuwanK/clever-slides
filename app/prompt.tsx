@@ -3,40 +3,50 @@
 import { Typewriter } from "@/components/ui/typewriter";
 import { TextAreaWithButton } from "@/components/ui/textarea-with-button";
 import { useCallback, useEffect, useRef } from "react";
-import { redirect, useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { createPresentation, type PresentationInsert } from "@/lib/utils";
+import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
+import { usePresentationMutation } from "@/hooks/use-presentation-mutation";
 
 export default function Prompt({ userId }: { userId?: string }) {
   const promptRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
   const supabase = createClient();
-  const mutation = useMutation({
-    mutationFn: async (data: PresentationInsert) => {
-      return createPresentation(supabase, data);
-    },
-
-    onSuccess: (data) => {
-      const id = data[0].id;
-      // Clearing out the session
-      sessionStorage.removeItem("prompt")
-      router.push(`/editor/${id}`);
-    },
-
-    onError: () => {
-      console.log("Error while creating the presentation");
-    },
+  const presentationMutation = usePresentationMutation({
+    supabase,
   });
+  const generateMutation = useGeneratePresentation();
+
+  // Used when a presentation is created for the first time
+  const createFresh = useCallback(async () => {
+    if (!promptRef.current) return;
+
+    const prompt = promptRef.current.value;
+
+    // Create the draft
+    const presentation = await presentationMutation.mutateAsync({
+      prompt,
+      created_by: userId,
+    });
+
+    const presentationId = presentation.id;
+
+    // Generate the schema
+    const schema = await generateMutation.mutateAsync({ prompt });
+
+    // Update the content
+    await presentationMutation.mutateAsync({
+      id: presentationId,
+      content: schema,
+    });
+  }, []);
 
   useEffect(() => {
     if (!promptRef.current) return;
 
+    // When coming from redirect of signin, presentation is created automatically
     if (sessionStorage.getItem("prompt") && userId) {
-      mutation.mutate({
-        prompt: sessionStorage.getItem("prompt"),
-        created_by: userId
-      })
+      createFresh();
     }
   }, []);
 
@@ -51,11 +61,8 @@ export default function Prompt({ userId }: { userId?: string }) {
       return;
     }
 
-    mutation.mutate({
-      prompt: promptRef.current.value,
-      created_by: userId,
-    });
-  }, [mutation, promptRef, userId, router]);
+    createFresh();
+  }, [promptRef, userId, router]);
 
   return (
     <>
@@ -70,7 +77,6 @@ export default function Prompt({ userId }: { userId?: string }) {
         <TextAreaWithButton
           ref={promptRef}
           onClick={onGenerate}
-          defaultValue={""}
           placeholder="Create a professional presentation for a pitch deck about an AI startup"
         />
       </div>

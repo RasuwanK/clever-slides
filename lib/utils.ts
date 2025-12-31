@@ -8,7 +8,7 @@ export type PresentationRow =
 export type PresentationInsert =
   Database["public"]["Tables"]["Presentation"]["Insert"];
 
-export type PresentationDrafts = Pick<Database["public"]["Tables"]["Presentation"]["Row"], "id" | "created_at" | "content" | "prompt">;
+export type PresentationDraft = Pick<Database["public"]["Tables"]["Presentation"]["Row"], "id" | "created_at" | "content" | "prompt">;
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -40,10 +40,10 @@ export async function generatePresentation(payload: {
 export async function createPresentation(
   client: SupabaseClient<Database>,
   data: PresentationInsert
-): Promise<PresentationDrafts[]> {
+): Promise<PresentationDraft> {
   const res = await client
     .from("Presentation")
-    .insert([{ ...data }])
+    .upsert([{ ...data }])
     .select();
 
   // Error while creating the presentation
@@ -51,7 +51,11 @@ export async function createPresentation(
     throw new Error("Error while creating an empty presentation");
   }
 
-  return res.data;
+  if(!res.data) {
+    throw new Error("NOT_FOUND");
+  }
+
+  return res.data[0];
 }
 
 export async function getRecentPresentations(

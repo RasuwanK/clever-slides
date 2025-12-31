@@ -7,15 +7,31 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   const messages = buildPresentationPrompt({
-    prompt: body.prompt
+    prompt: body.prompt,
   });
 
-  const completion = await groq.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    messages,
-    temperature: 0.3,
-    stream: false,
-  });
+  let completion;
+
+  try {
+    completion = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages,
+      temperature: 0.3,
+      stream: false,
+    });
+  } catch (error: any) {
+    if (error?.code === 429) {
+      return new Response(null, {
+        status: 500,
+        statusText: "Groq API limit has reached",
+      });
+    }
+
+    return new Response(null, {
+      status: 500,
+      statusText: `Groq API error`,
+    });
+  }
 
   const content = completion.choices[0]?.message?.content;
 
