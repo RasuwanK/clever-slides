@@ -161,7 +161,6 @@ INSERT INTO "auth"."one_time_tokens" ("id", "user_id", "token_type", "token_hash
 --
 
 
-
 --
 -- Data for Name: Presentation; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -221,6 +220,104 @@ INSERT INTO "auth"."one_time_tokens" ("id", "user_id", "token_type", "token_hash
 --
 
 SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 27, true);
+
+
+-- custom seed
+SET session_replication_role = replica;
+
+-- ==============================
+-- PUBLIC.ACCOUNT
+-- ==============================
+INSERT INTO public."Account" (
+  id,
+  first_name,
+  last_name,
+  country,
+  institution
+) VALUES (
+  '67a19abd-8743-4afd-a591-e373b3274c46',
+  'Rasuwan',
+  'Kalhara',
+  'Sri Lanka',
+  'University of Sri Jayewardenepura'
+);
+
+-- ==============================
+-- PUBLIC.PRESENTATION (FULL)
+-- ==============================
+INSERT INTO public."Presentation" (
+  id,
+  created_by,
+  prompt,
+  content,
+  theme,
+  status
+) VALUES (
+  'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+  '67a19abd-8743-4afd-a591-e373b3274c46',
+  'Explain machine learning to beginners',
+  '{
+    "theme": {
+      "accentColor": "#6366f1",
+      "background": "light"
+    },
+    "slides": [
+      {
+        "layout": "title_center",
+        "title": "What is Machine Learning?",
+        "bullets": [
+          "A subset of Artificial Intelligence",
+          "Learns from data",
+          "Improves over time"
+        ]
+      },
+      {
+        "layout": "bullets_left",
+        "title": "Why it matters",
+        "bullets": [
+          "Automation",
+          "Predictions",
+          "Personalization"
+        ]
+      }
+    ]
+  }'::json,
+  '{
+    "accentColor": "#6366f1",
+    "background": "light"
+  }'::json,
+  'draft'
+);
+
+-- ==============================
+-- PUBLIC.PRESENTATION (DRAFT)
+-- ==============================
+INSERT INTO public."Presentation" (
+  created_by,
+  prompt,
+  status
+) VALUES (
+  '67a19abd-8743-4afd-a591-e373b3274c46',
+  'Create a research presentation on quantum computing',
+  'draft'
+);
+
+-- ==============================
+-- PUBLIC.PRESENTATION (SOFT-DELETED)
+-- ==============================
+INSERT INTO public."Presentation" (
+  created_by,
+  prompt,
+  is_deleted,
+  status
+) VALUES (
+  '67a19abd-8743-4afd-a591-e373b3274c46',
+  'Old deleted presentation',
+  true,
+  'draft'
+);
+
+RESET session_replication_role;
 
 
 --
