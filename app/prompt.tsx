@@ -38,9 +38,12 @@ export default function Prompt({ userId }: { userId?: string }) {
     await presentationMutation.mutateAsync({
       id: presentationId,
       content: schema,
+      theme: schema["theme"],
+      created_by: userId
     });
   }, []);
 
+  // Used for continuing generation after auth redirect
   useEffect(() => {
     if (!promptRef.current) return;
 
