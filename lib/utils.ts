@@ -10,6 +10,20 @@ export type PresentationInsert =
 
 export type PresentationDraft = Pick<Database["public"]["Tables"]["Presentation"]["Row"], "id" | "created_at" | "content" | "prompt">;
 
+export interface Content {
+  theme: {
+    accentColor: string;
+    background: "light" | "dark";
+  },
+  slides: [
+    {
+      layout: "title_center" | "title_left_bullets_right" | "title_top_bullets_bottom" | "two_column";
+      title: string;
+      bullets: string[];
+    }
+  ]
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -48,10 +62,10 @@ export async function createPresentation(
 
   // Error while creating the presentation
   if (res.error) {
-    throw new Error("Error while creating an empty presentation");
+    throw new Error(JSON.stringify(res.error));
   }
 
-  if(!res.data) {
+  if (!res.data) {
     throw new Error("NOT_FOUND");
   }
 
@@ -93,5 +107,9 @@ export async function getPresenstation(
     throw new Error("Error while getting presentatio");
   }
 
-  return res.data
+  if (!res.data) {
+    throw new Error("NOT_FOUND");
+  }
+
+  return res.data[0]
 }
