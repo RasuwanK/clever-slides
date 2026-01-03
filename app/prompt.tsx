@@ -39,7 +39,7 @@ export default function Prompt({ userId }: { userId?: string }) {
       id: presentationId,
       content: schema,
       theme: schema["theme"],
-      created_by: userId
+      created_by: userId,
     });
   }, []);
 
