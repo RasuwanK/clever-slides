@@ -26,13 +26,11 @@ export default function EditorContainer({ presentationId, userId }: EditorProps)
   const setSlides = useEditorStore((s) => s.setSlides);
   const slides = useEditorStore((s) => s.slides);
 
-  console.log(presentation)
-
   // As soon as the data is changed presentation is loaded
   useEffect(() => {
     if (presentation?.content) {
       // To make the typecase convenient it is stored as a string
-      setSlides(JSON.parse(presentation.content.toString()) as Content);
+      setSlides(presentation.content as Content);
     } else {
       setSlides({
         theme: {

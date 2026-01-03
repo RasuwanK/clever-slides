@@ -1,6 +1,6 @@
 "use client";
 
-import { getPresenstation } from "@/lib/utils";
+import { getPresentation } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/supabase/database.types";
@@ -18,7 +18,7 @@ export function usePresentation({
 }: usePresentationProps) {
   return useQuery({
     queryKey: ["getPresentation", presentationId],
-    queryFn: () => getPresenstation(supabase, {
+    queryFn: () => getPresentation(supabase, {
       presentationId,
       userId,
     }),

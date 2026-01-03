@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation';
-import { getPresenstation } from '@/lib/utils';
+import { getPresentation } from '@/lib/utils';
 import EditorContainer from '../editor-container';
 
 export default async function EditorPage({
@@ -20,7 +20,7 @@ export default async function EditorPage({
   // loading the presentation prior to page load
   await queryClient.prefetchQuery({
     queryKey: ["getPresentation"],
-    queryFn: () => getPresenstation(supabase, {
+    queryFn: () => getPresentation(supabase, {
       presentationId: slideId,
       userId: user.id
     })
