@@ -90,26 +90,44 @@ export async function getRecentPresentations(
   return res.data;
 }
 
-export async function getPresenstation(
+// 1. The Type Guard
+// Replace 'slides' with a unique property that exists in your Content type
+function isContent(json: any): json is Content {
+  return (
+    json !== null &&
+    typeof json === 'object' &&
+    'slides' in json &&
+    Array.isArray(json.slides)
+  );
+}
+
+export async function getPresentation(
   client: SupabaseClient<Database>,
   data: {
     presentationId: string;
     userId: string;
   }
 ) {
-  const res = await client
+  const { data: resData, error } = await client
     .from("Presentation")
-    .select("id,content,created_by,prompt,theme")
+    .select("id, content, created_by, prompt, theme")
     .eq("id", data.presentationId)
-    .eq("created_by", data.userId);
+    .eq("created_by", data.userId)
+    .single(); // Use .single() if you are fetching by ID to get an object, not an array
 
-  if (res.error) {
-    throw new Error("Error while getting presentatio");
+  if (error) throw new Error("Error while getting presentation");
+  if (!resData) throw new Error("NOT_FOUND");
+
+  // 2. Apply the Guard
+  const content = resData.content;
+
+  if (!isContent(content)) {
+    throw new Error("INVALID_CONTENT_STRUCTURE");
   }
 
-  if (!res.data) {
-    throw new Error("NOT_FOUND");
-  }
-
-  return res.data[0]
+  // Now 'content' is strictly typed as 'Content'
+  return {
+    ...resData,
+    content: content
+  };
 }
