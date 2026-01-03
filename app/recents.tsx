@@ -13,6 +13,12 @@ export default function Recents({ userId }: { userId: string }) {
     queryFn: () => getRecentPresentations(supabase, { userId }),
   });
 
+  if (isLoading) {
+    return (
+      <div>Loading</div>
+    )
+  }
+
   return (
     <div id="recents" className="flex flex-col gap-4 items-center mt-10">
       <h2>Recents</h2>
