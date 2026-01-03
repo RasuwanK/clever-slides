@@ -2,13 +2,21 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type Content } from "@/lib/utils";
 
-interface EditorState {
-  slides: Content | null;
+export interface CanvasConfig {
+  width: number;
+  height: number;
+  backgroundColor: string;
+}
+
+export interface EditorState {
+  content: Content | null;
   isDirty: boolean;
   lastSavedAt: number | null;
+  canvasConfig: CanvasConfig | null;
 
-  setSlides: (slides: Content) => void;
-  updateSlides: (updater: (prev: Content) => Content) => void;
+  setContent: (slides: Content) => void;
+  updateContent: (updater: (prev: Content) => Content) => void;
+  setCanvasConfig: (canvasConfig: CanvasConfig) => void;
   markSaved: () => void;
   reset: () => void;
 }
@@ -17,16 +25,17 @@ interface EditorState {
 export const useEditorStore = create<EditorState>()(
   persist(
     (set, get) => ({
-      slides: null,
+      canvasConfig: null,
+      content: null,
       isDirty: false,
       lastSavedAt: null,
 
-      setSlides: (slides) =>
-        set({ slides, isDirty: false }),
+      setContent: (content) =>
+        set({ content, isDirty: false }),
 
-      updateSlides: (updater) =>
+      updateContent: (updater) =>
         set((state) => ({
-          slides: state.slides ? updater(state.slides) : state.slides,
+          content: state.content ? updater(state.content) : state.content,
           isDirty: true,
         })),
 
@@ -38,15 +47,24 @@ export const useEditorStore = create<EditorState>()(
 
       reset: () =>
         set({
-          slides: null,
+          content: null,
           isDirty: false,
           lastSavedAt: null,
         }),
+
+      setCanvasConfig: (canvasConfig) =>
+        set({
+          canvasConfig: {
+            width: canvasConfig.width,
+            height: canvasConfig.height,
+            backgroundColor: canvasConfig.backgroundColor
+          }
+        })
     }),
     {
       name: "editor-draft", // 👈 localStorage key
       partialize: (state) => ({
-        slides: state.slides,
+        slides: state.content,
       }),
     }
   )
