@@ -22,6 +22,7 @@ Generate structured presentation slide content optimized for a modern profession
 
 Design principles:
 - One title per slide
+- Include the title seperately in the title field of the schema
 - Max 5 bullet points
 - Bullets must be concise (≤ 12 words)
 - Strong visual hierarchy
@@ -45,6 +46,7 @@ Layout options (choose one per slide):
 
 Schema:
 {
+  "title": "Title of the presentation"
   "theme": {
     "accentColor": "#HEX",
     "background": "light | dark"
