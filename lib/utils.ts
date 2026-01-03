@@ -11,6 +11,7 @@ export type PresentationInsert =
 export type PresentationDraft = Pick<Database["public"]["Tables"]["Presentation"]["Row"], "id" | "created_at" | "content" | "prompt">;
 
 export interface Content {
+  title: string;
   theme: {
     accentColor: string;
     background: "light" | "dark";
@@ -110,7 +111,7 @@ export async function getPresentation(
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .select("id, content, created_by, prompt, theme")
+    .select("id, content, created_by, updated_at ,prompt, theme")
     .eq("id", data.presentationId)
     .eq("created_by", data.userId)
     .single(); // Use .single() if you are fetching by ID to get an object, not an array
