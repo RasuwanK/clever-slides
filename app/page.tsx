@@ -1,16 +1,15 @@
 import { Logo } from "@/components/ui/logo";
 import { createClient } from "@/lib/supabase/server";
-import Prompt from "./prompt";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getRecentPresentations } from "@/lib/utils";
 import { AuthStatus } from "@/components/ui/dynamic/auth-status";
-import Recents from "./recents";
+import Generate from "./generate";
 
 export default async function Home() {
+  // TODO: Fix the page loading time
   const supabase = await createClient();
 
   const {
@@ -19,13 +18,6 @@ export default async function Home() {
 
   const queryClient = new QueryClient();
 
-  if (user) {
-    await queryClient.prefetchQuery({
-      queryKey: ["recents", user?.id],
-      queryFn: () => getRecentPresentations(supabase, { userId: user.id }),
-    });
-  }
-  
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex flex-col">
@@ -36,6 +28,7 @@ export default async function Home() {
               <AuthStatus
                 isAuth={user ? true : false}
                 user={{
+                  id: user?.id,
                   name: user?.user_metadata?.full_name,
                   email: user?.email,
                   avatarUrl: user?.user_metadata?.avatar_url,
@@ -43,16 +36,10 @@ export default async function Home() {
               />
             </div>
           </header>
-          <div
-            id="centered"
-            className="flex flex-col gap-5 min-h-screen items-center"
-          >
-            <Prompt userId={user?.id} />
-            {user?.id && <Recents userId={user.id} />}
-          </div>
           {/* <footer className="min-h-20 flex flex-col items-center justify-center w-full bg-primary">
             <p className="text-white">Created by Rasuwan Kalhara</p>
           </footer> */}
+          <Generate userId={user?.id} />
         </main>
       </div>
     </HydrationBoundary>
