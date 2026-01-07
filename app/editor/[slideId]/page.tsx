@@ -13,23 +13,18 @@ export default async function EditorPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   const { slideId } = await params;
-  const queryClient = new QueryClient();
 
   if (!user) redirect('/auth/signin')
-
-  // loading the presentation prior to page load
-  await queryClient.prefetchQuery({
-    queryKey: ["getPresentation"],
-    queryFn: () => getPresentation(supabase, {
-      presentationId: slideId,
-      userId: user.id
-    })
-  });
 
   return (
     <div className="flex flex-col">
       <main className="h-screen">
-        <EditorContainer presentationId={slideId} userId={user.id} />
+        <EditorContainer presentationId={slideId} user={{
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata.full_name,
+          avatarUrl: user.user_metadata.avatar_url
+        }} />
       </main>
     </div>
   )
