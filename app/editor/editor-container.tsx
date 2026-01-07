@@ -8,13 +8,18 @@ import { useEditorStore } from "@/stores/editor-store";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import { Stage, Text, Layer, Circle, Rect } from "react-konva";
+import { Button } from "@/components/ui/button";
+import { DownloadSimpleIcon, PresentationIcon } from "@phosphor-icons/react";
+import AuthStatus from "@/components/ui/auth-status";
+import type { User } from "@/components/ui/auth-status";
 
 interface EditorProps {
   presentationId: string;
-  userId: string;
+  user: User;
 }
 
-export default function EditorContainer({ presentationId, userId }: EditorProps) {
+export default function EditorContainer({ presentationId, user }: EditorProps) {
+  // TODO: Fix the page load time by loaing project data on ssr and slides on client side
   const supabase = createClient();
   const router = useRouter();
 
@@ -22,7 +27,7 @@ export default function EditorContainer({ presentationId, userId }: EditorProps)
   const { data: presentation, isLoading, error } = usePresentation({
     supabase,
     presentationId,
-    userId
+    userId: user?.id!
   });
 
   const setContent = useEditorStore((s) => s.setContent);
@@ -42,6 +47,8 @@ export default function EditorContainer({ presentationId, userId }: EditorProps)
       height: computedWidth * heightPerWidth,
       backgroundColor: "white"
     });
+
+    console.log(presentation)
 
     if (presentation?.content) {
       // To make the typecase convenient it is stored as a string
@@ -87,9 +94,19 @@ export default function EditorContainer({ presentationId, userId }: EditorProps)
             ))}
           </div>
           <div id="content" className="flex flex-col h-full">
-            <nav id="navbar" className="flex flex-row items-center">
-              <h1 className="text-xl font-bold">{presentation?.content.title}</h1>
-              <h2 className="text-sm">{presentation?.updated_at ?? ""}</h2>
+            <nav id="navbar" className="w-full flex flex-row gap-2 items-center">
+              <div id="file-info" className="flex flex-col">
+                <h1 className="text-xl font-bold">{presentation?.content.title}</h1>
+                <h2 className="text-sm">{presentation?.updated_at ?? ""}</h2>
+              </div>
+              <div id="right-aligned" className="flex flex-row ml-auto gap-4 items-center">
+                <div id="controls" className="flex flex-row gap-2">
+                  <Button variant="outline" className="min-w-40"><DownloadSimpleIcon size={32} />Export</Button>
+                  <Button className="min-w-40"><PresentationIcon size={32} />Present</Button>
+                </div>
+                <div id="profile">
+                </div>
+              </div>
             </nav>
             <div id="slide" className="flex flex-col items-center h-full justify-center">
               {
