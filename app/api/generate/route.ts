@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       stream: false,
     });
   } catch (error: any) {
+    console.log('GROQ ERROR ! =>', error);
     if (error?.code === 429) {
       return new Response(null, {
         status: 500,
