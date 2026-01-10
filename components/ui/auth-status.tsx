@@ -20,7 +20,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 
-interface User {
+export interface User {
+  id?: string;
   name?: string;
   email?: string;
   avatarUrl?: string;

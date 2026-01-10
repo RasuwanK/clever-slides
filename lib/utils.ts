@@ -10,6 +10,13 @@ export type PresentationInsert =
 
 export type PresentationDraft = Pick<Database["public"]["Tables"]["Presentation"]["Row"], "id" | "created_at" | "content" | "prompt">;
 
+export interface User {
+  id?: string;
+  name?: string;
+  email?: string;
+  avatar_url?: string;
+};
+
 export interface Content {
   title: string;
   theme: {
@@ -37,6 +44,8 @@ export async function generatePresentation(payload: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
+
+  console.log(response);
 
   if (!response.ok) {
     throw new Error("Error while generating presentation");
@@ -76,9 +85,13 @@ export async function createPresentation(
 export async function getRecentPresentations(
   client: SupabaseClient<Database>,
   data: {
-    userId: string;
+    userId: string | undefined;
   }
 ) {
+  if (!data.userId) {
+    return null;
+  }
+
   const res = await client
     .from("Presentation")
     .select("id,created_at,content,prompt")

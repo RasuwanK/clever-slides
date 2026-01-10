@@ -9,6 +9,7 @@ You are an expert presentation content generator.
 
 Rules:
 - Output MUST be valid JSON
+- For any instance please do not return any plain text only return the response in given JSON schema
 - No markdown
 - No explanations
 - No extra text
@@ -18,7 +19,7 @@ Rules:
 `;
 
   const developerPrompt = `
-Generate structured presentation slide content optimized for a modern professional design.
+Generate structured presentation slide content optimized for a modern professional design by following the user prompt given below.
 
 Design principles:
 - One title per slide
