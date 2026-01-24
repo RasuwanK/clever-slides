@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { QueryProvider } from "@/hooks/query-provider";
 
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
+const inter = localFont({
+  src: "./Inter-Variable.ttf",
   variable: "--font-inter",
 })
 

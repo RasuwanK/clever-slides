@@ -126,14 +126,16 @@ export async function getPresentation(
     .from("Presentation")
     .select("id, content, created_by, updated_at ,prompt, theme")
     .eq("id", data.presentationId)
-    .eq("created_by", data.userId)
-    .single(); // Use .single() if you are fetching by ID to get an object, not an array
+    .eq("created_by", data.userId); // Use .single() if you are fetching by ID to get an object, not an array
 
   if (error) throw new Error("Error while getting presentation");
-  if (!resData) throw new Error("NOT_FOUND");
+  
+  if (!resData) {
+    return null;
+  };
 
   // 2. Apply the Guard
-  const content = resData.content;
+  const content = resData[0].content;
 
   if (!isContent(content)) {
     throw new Error("INVALID_CONTENT_STRUCTURE");

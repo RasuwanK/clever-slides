@@ -62,7 +62,7 @@ export const useEditorStore = create<EditorState>()(
         })
     }),
     {
-      name: "editor-draft", // 👈 localStorage key
+      name: "editor-draft", // localStorage key
       partialize: (state) => ({
         slides: state.content,
       }),

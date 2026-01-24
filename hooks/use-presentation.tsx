@@ -4,6 +4,8 @@ import { getPresentation } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/supabase/database.types";
+import { useDraftStore } from "@/stores/draft-store";
+import { useEffect } from "react";
 
 interface usePresentationProps {
   supabase: SupabaseClient<Database>;
@@ -16,7 +18,7 @@ export function usePresentation({
   presentationId,
   userId,
 }: usePresentationProps) {
-  return useQuery({
+  const {data, isLoading, error} = useQuery({
     queryKey: ["getPresentation", presentationId],
     queryFn: () => getPresentation(supabase, {
       presentationId,
@@ -24,4 +26,15 @@ export function usePresentation({
     }),
     enabled: !!presentationId && !!userId,
   });
+
+  const {draft, setDraft} = useDraftStore();
+
+  console.log("Local Draft in usePresentation:", draft);
+
+  return {
+    data,
+    isLoading,
+    error,
+  }
+  
 }

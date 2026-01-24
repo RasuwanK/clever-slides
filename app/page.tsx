@@ -6,7 +6,9 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { AuthStatus } from "@/components/ui/dynamic/auth-status";
-import Generate from "./generate";
+import Drafts from "./drafts";
+import Prompt from "./prompt";
+import { Typewriter } from "@/components/ui/typewriter";
 
 export default async function Home() {
   // TODO: Fix the page loading time
@@ -36,10 +38,27 @@ export default async function Home() {
               />
             </div>
           </header>
-          {/* <footer className="min-h-20 flex flex-col items-center justify-center w-full bg-primary">
-            <p className="text-white">Created by Rasuwan Kalhara</p>
-          </footer> */}
-          <Generate userId={user?.id} />
+          <div
+            id="centered"
+            className="flex flex-col gap-5 min-h-screen items-center"
+          >
+            <div
+              id="promt-dialog"
+              className="mt-[calc(30vh)] flex flex-col gap-10"
+            >
+              <header className="flex flex-col items-center gap-5">
+                <Typewriter
+                  text="Think. Type. Create"
+                  className="text-6xl font-bold text-primary"
+                />
+                <p className="text-xl">
+                  Create presentations with a single prompt
+                </p>
+              </header>
+              <Prompt userId={user?.id} />
+            </div>
+            {user?.id && <Drafts userId={user?.id} />}
+          </div>
         </main>
       </div>
     </HydrationBoundary>

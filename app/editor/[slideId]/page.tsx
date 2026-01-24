@@ -1,7 +1,5 @@
-import { QueryClient } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation';
-import { getPresentation } from '@/lib/utils';
 import EditorContainer from '../editor-container';
 
 export default async function EditorPage({
@@ -9,6 +7,7 @@ export default async function EditorPage({
 }: {
   params: Promise<{ slideId: string }>
 }) {
+  // For authentication and getting user info
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

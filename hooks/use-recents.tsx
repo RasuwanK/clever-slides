@@ -4,14 +4,14 @@ import { useQuery } from "@tanstack/react-query"
 import { getRecentPresentations } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 
-export interface useDraftProps {
+export interface useRecentProps {
   userId: string | undefined;
 }
 
-export function useDrafts({ userId }: useDraftProps) {
+export function useRecents({ userId }: useRecentProps) {
   const supabase = createClient()
   const query = useQuery({
-    queryKey: ["drafts", userId],
+    queryKey: ["recents", userId],
     queryFn: () => getRecentPresentations(supabase, { userId }),
     enabled: !!userId
   });
