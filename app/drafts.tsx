@@ -28,16 +28,12 @@ export default function Drafts({ userId }: { userId: string }) {
         {/* Add a loading state */}
         {data &&
           data.map(
-            ({ id, created_at, content, prompt, isOptimistic }, key) => {
+            ({ id, created_at, content, prompt }, key) => {
               const title = content?.title ?? "Empty presentation";
               return (
                 <li key={id}>
                   <Link href={`editor/${id}`}>
-                    <Card
-                      className={
-                        isOptimistic ? "w-50 p-0 opacity-30" : "w-50 p-0"
-                      }
-                    >
+                    <Card>
                       <CardContent className="p-0">
                         <div className="flex flex-col">
                           <div
