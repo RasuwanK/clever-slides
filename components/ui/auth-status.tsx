@@ -14,17 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { forwardRef, HTMLAttributes, useCallback, useMemo } from "react";
+import { forwardRef, HTMLAttributes, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 
 export interface User {
-  id?: string;
-  name?: string;
-  email?: string;
-  avatarUrl?: string;
+  id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
 }
 
 interface AuthStatusProps extends HTMLAttributes<HTMLButtonElement> {
@@ -81,12 +81,12 @@ export default function AuthStatus({ isAuth, user }: AuthStatusProps) {
   const supabase = createClient();
   const router = useRouter();
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = async () => {
     await supabase.auth.signOut();
 
     // Redirect to home page after logout
     router.push("/");
-  }, [supabase]);
+  }
 
   return (
     <DropdownMenu>
