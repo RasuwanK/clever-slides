@@ -1,19 +1,15 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { usePresentation } from "@/hooks/use-presentation";
-import { createClient } from "@/lib/supabase/client";
-import { Content } from "@/lib/utils";
 import { useEditorStore } from "@/stores/editor-store";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Stage, Layer, Rect } from "react-konva";
 import { Button } from "@/components/ui/button";
 import { DownloadSimpleIcon, PresentationIcon } from "@phosphor-icons/react";
 import type { User } from "@/components/ui/auth-status";
-import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
+import { usePresentation } from "@/hooks/use-presentation";
+import { useEffect } from "react";
 import { useDraftStore } from "@/stores/draft-store";
-import { usePresentationCreate } from "@/hooks/use-presentation-create";
+import { useRouter } from "next/navigation";
+import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 
 interface EditorProps {
   presentationId: string;
@@ -21,82 +17,61 @@ interface EditorProps {
 }
 
 export default function EditorContainer({ presentationId, user }: EditorProps) {
-  // TODO: Fix the page load time by loaing project data on ssr and slides on client side
-  const supabase = createClient();
+  // For routing
   const router = useRouter();
-  // Used to get the draft from storage, no use after that
-  const { draft } = useDraftStore();
-  const {
-    data: presentation,
-    isLoading,
-    error,
-  } = usePresentation({
-    supabase,
-    presentationId,
-    userId: user?.id!,
-  });
 
-  // To generate presentation
-  const generateMutation = useGeneratePresentation({
-    prompt: presentation?.prompt
-  });
+  // State of the database saved presentation
+  const presentation = usePresentation({ presentationId, userId: user.id! });
 
-  // To create the presentation
-  const createMutation = usePresentationCreate();
+  // Local draft created by the prompt
+  const localPresentation = useDraftStore((state) => state.draft);
 
-  // State of the canvas
-  const setContent = useEditorStore((s) => s.setContent);
-  const content = useEditorStore((s) => s.content);
-  const config = useEditorStore((s) => s.canvasConfig);
-  const setConfig = useEditorStore((s) => s.setCanvasConfig);
+  // Config of the canvas
+  const canvasConfig = useEditorStore((state) => state.canvasConfig);
+  const setCanvasConfig = useEditorStore((state) => state.setCanvasConfig);
 
-  // As soon as the data is changed presentation is generated and saved
+  // Canvas content
+  const content = useEditorStore((state) => state.content);
+  const setContent = useEditorStore((state) => state.setContent);
+
+  // Mutation to generate presentation
+  const generateMutation = useGeneratePresentation();
+
+  // To generate a new presentation if none exists
   useEffect(() => {
-    // Initializing canvasConfig
-    const computedWidth = (window.innerWidth - 200) * 0.6;
-    // Aspect ratio
-    const heightPerWidth = 9 / 16;
+    // Skipping for loading state, error, or suceess (any settled state)
+    // IMPORTANT: Removing this will cause infinite loop
+    if (
+      presentation.isLoading ||
+      presentation.error ||
+      generateMutation.isPending ||
+      generateMutation.isError ||
+      generateMutation.isSuccess
+    ) {
+      return;
+    }
 
-    // Initializing the canvas
-    setConfig({
-      width: computedWidth,
-      height: computedWidth * heightPerWidth,
-      backgroundColor: "white",
-    });
+    // If no presentation exists in DB, but there's a local draft, generate from prompt
+    if (presentation.data === null && localPresentation) {
+      if (!localPresentation.prompt) {
+        // TODO: Fix this by opening a modal to enter prompt
+        return router.push("/404");
+      }
 
-    console.log(presentation);
-
-    if (presentation?.content) {
-      // To make the typecase convenient it is stored as a string
-      setContent(presentation.content as Content);
-    } else {
-      setContent({
-        title: "Sample Presentation",
-        theme: {
-          accentColor: "white",
-          background: "light",
-        },
-        slides: [
-          {
-            layout: "title_center",
-            title: "Sample title",
-            bullets: ["Sample bullet"],
-          },
-        ],
+      generateMutation.mutate({
+        prompt: localPresentation.prompt,
       });
     }
-  }, [presentation?.id]);
-
-  useEffect(() => {
-    if (error?.message === "NOT_FOUND") {
-      router.push("/404");
-    }
-  }, [error]);
-
-  if (isLoading) return <p>Loading</p>;
-
-  // TODO: HANDLE when presentation has not generated
-  if (!content) return null;
+  }, [
+    presentation.isLoading,
+    presentation.data,
+    localPresentation,
+    router,
+    generateMutation,
+    presentation.error,
+    generateMutation.isPending,
+    generateMutation.isError,
+  ]);
 
   return (
     <div id="editor-page-container" className="flex flex-col min-h-screen">
@@ -106,9 +81,9 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
           className="w-full grid grid-cols-[200px_auto] h-screen"
         >
           <div id="slides-nav" className="flex flex-col gap-4 max-w-40 h-full">
-            {content.slides.map((slide, index) => (
+            {/* {content.slides.map((slide, index) => (
               <Card key={index} className="cursor-pointer w-40 h-20"></Card>
-            ))}
+            ))} */}
           </div>
           <div id="content" className="flex flex-col h-full">
             <nav
@@ -117,9 +92,9 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
             >
               <div id="file-info" className="flex flex-col">
                 <h1 className="text-xl font-bold">
-                  {presentation?.content.title}
+                  {/* {presentation?.content.title} */}
                 </h1>
-                <h2 className="text-sm">{presentation?.updated_at ?? ""}</h2>
+                {/* <h2 className="text-sm">{presentation?.updated_at ?? ""}</h2> */}
               </div>
               <div
                 id="right-aligned"
@@ -142,7 +117,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
               id="slide"
               className="flex flex-col items-center h-full justify-center"
             >
-              {config && (
+              {/* {config && (
                 <Stage width={config.width} height={config.height}>
                   <Layer id="background-layer">
                     <Rect
@@ -155,7 +130,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
                   </Layer>
                   <Layer id="text-layer"></Layer>
                 </Stage>
-              )}
+              )} */}
             </div>
           </div>
         </div>
