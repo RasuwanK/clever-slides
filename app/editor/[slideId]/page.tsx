@@ -20,7 +20,7 @@ export default async function EditorPage({
       <main className="h-screen">
         <EditorContainer presentationId={slideId} user={{
           id: user.id,
-          email: user.email,
+          email: user.email!,
           name: user.user_metadata.full_name,
           avatarUrl: user.user_metadata.avatar_url
         }} />
