@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { type Content } from "@/lib/utils";
+import { type CanvasContent } from "@/lib/utils/canvas";
 
 export interface CanvasConfig {
   width: number;
@@ -9,13 +9,13 @@ export interface CanvasConfig {
 }
 
 export interface EditorState {
-  content: Content | null;
+  content: CanvasContent | null;
   isDirty: boolean;
   lastSavedAt: number | null;
   canvasConfig: CanvasConfig | null;
 
-  setContent: (slides: Content) => void;
-  updateContent: (updater: (prev: Content) => Content) => void;
+  setContent: (slides: CanvasContent) => void;
+  updateContent: (updater: (prev: CanvasContent) => CanvasContent) => void;
   setCanvasConfig: (canvasConfig: CanvasConfig) => void;
   markSaved: () => void;
   reset: () => void;
