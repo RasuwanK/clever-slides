@@ -6,7 +6,6 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { AuthStatus } from "@/components/ui/dynamic/auth-status";
-import Drafts from "./drafts";
 import Prompt from "./prompt";
 import { Typewriter } from "@/components/ui/typewriter";
 
@@ -19,6 +18,10 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   const queryClient = new QueryClient();
+
+  if (user?.id === undefined || user?.email === undefined) {
+    throw new Error("User object is missing required properties (email and).");
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -57,7 +60,6 @@ export default async function Home() {
               </header>
               <Prompt userId={user?.id} />
             </div>
-            {user?.id && <Drafts userId={user?.id} />}
           </div>
         </main>
       </div>
