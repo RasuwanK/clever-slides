@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query"
-import { getRecentPresentations } from "@/lib/utils";
+import { getRecentPresentations } from "@/lib/utils/supabase";
 import { createClient } from "@/lib/supabase/client";
 
 export interface useRecentProps {

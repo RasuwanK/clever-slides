@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query"
-import { generatePresentation } from "@/lib/utils"
+import { generatePresentation } from "@/lib/utils/supabase"
 
 export function useGeneratePresentation() {
     return useMutation({

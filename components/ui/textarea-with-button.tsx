@@ -1,7 +1,7 @@
 import { type ComponentProps, forwardRef } from "react";
 import { Button } from "./button";
 import { Textarea } from "./textarea";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/tailwind";
 import { PaperPlaneTiltIcon } from "@phosphor-icons/react";
 
 interface TextAreaWithButtonProps {
