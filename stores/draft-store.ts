@@ -1,5 +1,4 @@
-import { Database, Json } from "@/lib/supabase/database.types";
-import type { Content } from "@/lib/utils";
+import { Database } from "@/lib/supabase/database.types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -22,7 +21,7 @@ export const useDraftStore = create<DraftState & DraftActions>()(
     {
       name: "draft",
       partialize: (state) => ({
-        ...state.draft,
+        draft: state.draft,
       }),
     }
   )
