@@ -9,7 +9,7 @@ type DraftState = {
 };
 
 type DraftActions = {
-  setDraft: (draft: Draft) => void;
+  setDraft: (draft: Draft | null) => void;
 };
 
 export const useDraftStore = create<DraftState & DraftActions>()(
