@@ -21,10 +21,17 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
   const router = useRouter();
 
   // State of the database saved presentation
-  const presentation = usePresentation({ presentationId, userId: user.id! });
+  const {
+    data: presentation,
+    update: updatePresentation,
+    isLoading: isPresentationLoading,
+    isUpdating: isPresentationUpdating,
+    error: presentationError,
+  } = usePresentation({ presentationId, userId: user.id! });
 
   // Local draft created by the prompt
   const localPresentation = useDraftStore((state) => state.draft);
+  const setDraft = useDraftStore((state) => state.setDraft);
 
   // Config of the canvas
   const canvasConfig = useEditorStore((state) => state.canvasConfig);
@@ -35,7 +42,15 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
   const setContent = useEditorStore((state) => state.setContent);
 
   // Mutation to generate presentation
-  const generateMutation = useGeneratePresentation();
+  const generateMutation = useGeneratePresentation({
+    saveFn: (data) => {
+      updatePresentation({
+        ...localPresentation,
+        created_by: user.id!,
+        content: data,
+      });
+    },
+  });
 
   // To get reference to the canvas parent
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -48,8 +63,8 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
     // Skipping for loading state, error, or suceess (any settled state)
     // IMPORTANT: Removing this will cause infinite loop
     if (
-      presentation.isLoading ||
-      presentation.error ||
+      isPresentationLoading ||
+      presentationError ||
       generateMutation.isPending ||
       generateMutation.isError ||
       generateMutation.isSuccess
@@ -58,7 +73,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
     }
 
     // If no presentation exists in DB, but there's a local draft, generate from prompt
-    if (presentation.data === null && localPresentation) {
+    if (presentation === null && localPresentation) {
       if (!localPresentation.prompt) {
         // TODO: Fix this by opening a modal to enter prompt
         return router.push("/404");
@@ -67,16 +82,19 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
       generateMutation.mutate({
         prompt: localPresentation.prompt,
       });
+
+      setDraft(null); // Clear local draft after generating
     }
   }, [
-    presentation.isLoading,
-    presentation.data,
     localPresentation,
     router,
     generateMutation,
-    presentation.error,
     generateMutation.isPending,
     generateMutation.isError,
+    presentation,
+    isPresentationLoading,
+    presentationError,
+    setDraft
   ]);
 
   useEffect(() => {
@@ -180,9 +198,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
                 {localPresentation?.prompt}
               </div>
             )}
-            <div id="chat-container">
-              
-            </div>
+            <div id="chat-container"></div>
           </aside>
         </div>
       </div>
