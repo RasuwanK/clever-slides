@@ -2,14 +2,14 @@
 
 import { useEditorStore } from "@/stores/editor-store";
 import { Stage, Layer, Rect } from "react-konva";
-import { Button } from "@/components/ui/button";
-import { DownloadSimpleIcon, PresentationIcon } from "@phosphor-icons/react";
 import type { User } from "@/components/ui/auth-status";
 import { usePresentation } from "@/hooks/use-presentation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDraftStore } from "@/stores/draft-store";
 import { useRouter } from "next/navigation";
 import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
+import { Titlebar } from "./titlebar";
+import { RobotIcon } from "@phosphor-icons/react";
 
 interface EditorProps {
   presentationId: string;
@@ -36,6 +36,12 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
 
   // Mutation to generate presentation
   const generateMutation = useGeneratePresentation();
+
+  // To get reference to the canvas parent
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
+
+  // Storing aspect ratio
+  const aspectRatioRef = useRef(16 / 9);
 
   // To generate a new presentation if none exists
   useEffect(() => {
@@ -73,68 +79,113 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
     generateMutation.isError,
   ]);
 
+  useEffect(() => {
+    // To resize the canvas
+    const resize = () => {
+      // Initializing the canvas config
+      const canvasContainer = canvasContainerRef.current;
+
+      // TODO: Get these values from presentation features
+      // TODO: Create a utility to initialize presentation features
+
+      if (!canvasContainer) return;
+
+      const containerWidth = canvasContainer.clientWidth;
+
+      const minWidth = 400; // Minimum width the canvas can take
+      const width =
+        containerWidth * 0.8 < minWidth ? minWidth : containerWidth * 0.8; // 80% of the container width
+      const height = width / aspectRatioRef.current;
+
+      setCanvasConfig({
+        width: width,
+        height: height,
+        backgroundColor: "#ffffff",
+      });
+    };
+
+    // Initial resize
+    resize();
+
+    // Adding resize event listener
+    window.addEventListener("resize", resize);
+
+    return () => {
+      // To clean up the event listener
+      window.removeEventListener("resize", resize);
+    };
+  }, [setCanvasConfig]);
+
   return (
-    <div id="editor-page-container" className="flex flex-col min-h-screen">
-      <main id="editor-page" className="flex flex-col p-4 h-screen">
-        <div
-          id="editor"
-          className="w-full grid grid-cols-[200px_auto] h-screen"
-        >
-          <div id="slides-nav" className="flex flex-col gap-4 max-w-40 h-full">
-            {/* {content.slides.map((slide, index) => (
+    <div id="editor" className="grid grid-cols-[200px_auto] w-full h-screen">
+      <div id="slides-nav" className="flex flex-col gap-4 h-full">
+        {/* {content.slides.map((slide, index) => (
               <Card key={index} className="cursor-pointer w-40 h-20"></Card>
             ))} */}
-          </div>
-          <div id="content" className="flex flex-col h-full">
-            <nav
-              id="navbar"
-              className="w-full flex flex-row gap-2 items-center"
-            >
-              <div id="file-info" className="flex flex-col">
-                <h1 className="text-xl font-bold">
-                  {/* {presentation?.content.title} */}
-                </h1>
-                {/* <h2 className="text-sm">{presentation?.updated_at ?? ""}</h2> */}
-              </div>
-              <div
-                id="right-aligned"
-                className="flex flex-row ml-auto gap-4 items-center"
-              >
-                <div id="controls" className="flex flex-row gap-2">
-                  <Button variant="outline" className="min-w-40">
-                    <DownloadSimpleIcon size={32} />
-                    Export
-                  </Button>
-                  <Button className="min-w-40">
-                    <PresentationIcon size={32} />
-                    Present
-                  </Button>
-                </div>
-                <div id="profile"></div>
-              </div>
-            </nav>
+      </div>
+      <div id="content" className="flex flex-col gap-10 h-full p-4">
+        <Titlebar />
+        <div
+          id="slide-editor"
+          className="grid grid-cols-[auto_300px] gap-2 w-full h-full"
+        >
+          <div
+            id="canvas-and-toolbar"
+            className="w-full h-full grid grid-rows-[auto_100px]"
+          >
             <div
-              id="slide"
-              className="flex flex-col items-center h-full justify-center"
+              id="canvas-container"
+              ref={canvasContainerRef}
+              className="w-full h-full flex flex-col items-center justify-center"
             >
-              {/* {config && (
-                <Stage width={config.width} height={config.height}>
-                  <Layer id="background-layer">
+              {canvasConfig && (
+                <Stage width={canvasConfig.width} height={canvasConfig.height}>
+                  {/* Background layer */}
+                  <Layer>
                     <Rect
-                      fill={config.backgroundColor}
-                      width={config.width}
-                      height={config.height}
                       x={0}
                       y={0}
+                      width={canvasConfig.width}
+                      height={canvasConfig.height}
+                      fill={canvasConfig.backgroundColor}
                     />
                   </Layer>
-                  <Layer id="text-layer"></Layer>
+                  <Layer>
+                    <Rect
+                      x={100}
+                      y={100}
+                      width={200}
+                      height={200}
+                      fill="royalblue"
+                      draggable
+                    />
+                  </Layer>
                 </Stage>
-              )} */}
+              )}
             </div>
+            <div id="toolbar-container">Toolbar</div>
           </div>
+          <aside
+            id="ai-chat"
+            className="flex flex-col gap-2 bg-black border rounded-md border-primary h-full right-0 top-0 py-4 px-2 text-sm"
+          >
+            <h1 className="flex flex-row gap-2">
+              <RobotIcon size={20} /> <span>Your Assistant</span>
+            </h1>
+            {localPresentation?.prompt && (
+              <div
+                id="prompt"
+                className="bg-white/10 p-2 rounded-sm text-xs text-white/40"
+              >
+                {localPresentation?.prompt}
+              </div>
+            )}
+            <div id="chat-container">
+              
+            </div>
+          </aside>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
