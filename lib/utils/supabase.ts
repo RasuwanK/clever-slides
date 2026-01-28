@@ -8,33 +8,40 @@ export type PresentationInsert =
 export type PresentationUpdate =
   Database["public"]["Tables"]["Presentation"]["Update"];
 
-export type PresentationDraft = Pick<Database["public"]["Tables"]["Presentation"]["Row"], "id" | "created_at" | "content" | "prompt">;
+export type PresentationDraft = Pick<
+  Database["public"]["Tables"]["Presentation"]["Row"],
+  "id" | "created_at" | "content" | "prompt"
+>;
 
 export interface User {
   id?: string;
   name?: string;
   email?: string;
   avatar_url?: string;
-};
+}
 
 export interface GeneratedContent {
   title: string;
   theme: {
     accentColor: string;
     background: "light" | "dark";
-  },
+  };
   slides: [
     {
-      layout: "title_center" | "title_left_bullets_right" | "title_top_bullets_bottom" | "two_column";
+      layout:
+        | "title_center"
+        | "title_left_bullets_right"
+        | "title_top_bullets_bottom"
+        | "two_column";
       title: string;
       bullets: string[];
-    }
-  ]
+    },
+  ];
 }
 
 export async function generatePresentation(payload: {
   prompt: string;
-}) {
+}): Promise<GeneratedContent> {
   const response = await fetch("/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -59,7 +66,7 @@ export async function generatePresentation(payload: {
 
 export async function createPresentation(
   client: SupabaseClient<Database>,
-  data: PresentationInsert
+  data: PresentationInsert,
 ): Promise<PresentationDraft> {
   const res = await client
     .from("Presentation")
@@ -82,7 +89,7 @@ export async function getRecentPresentations(
   client: SupabaseClient<Database>,
   data: {
     userId: string | undefined;
-  }
+  },
 ) {
   if (!data.userId) {
     return null;
@@ -105,8 +112,8 @@ export async function getRecentPresentations(
 function isContent(json: unknown): json is GeneratedContent {
   return (
     json !== null &&
-    typeof json === 'object' &&
-    'slides' in json &&
+    typeof json === "object" &&
+    "slides" in json &&
     Array.isArray(json.slides)
   );
 }
@@ -116,7 +123,7 @@ export async function getPresentation(
   data: {
     presentationId: string;
     userId: string;
-  }
+  },
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
@@ -125,11 +132,11 @@ export async function getPresentation(
     .eq("created_by", data.userId);
 
   if (error) throw new Error("Error while getting presentation");
-  
+
   if (resData.length === 0) {
     console.log("No presentation found");
     return null;
-  };
+  }
 
   // 2. Apply the Guard
   const content = resData[0].content;
@@ -143,29 +150,29 @@ export async function getPresentation(
   return resData[0] as PresentationRow;
 }
 
-export async function updatePresentation(
+export async function upsertPresentation(
   client: SupabaseClient<Database>,
   data: {
     presentationId: string;
     userId: string;
     updates: PresentationUpdate;
-  }
+  },
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .update({ ...data.updates })
+    .upsert({ ...data.updates })
     .eq("id", data.presentationId)
     .eq("created_by", data.userId)
-    .select("id, content, created_by, updated_at ,prompt, theme")
-    .single();
+    .select("id, content, created_by, updated_at ,prompt, theme");
 
-  if (error) throw new Error("Error while updating presentation");
-
-  if (!resData) {
+  if (resData === null || resData.length === 0) {
+    console.log("No presentation found");
     return null;
   }
 
-  const content = resData.content;
+  if (error) throw new Error("Error while updating presentation");
+
+  const content = resData[0].content;
 
   if (!isContent(content)) {
     throw new Error("INVALID_CONTENT_STRUCTURE");
