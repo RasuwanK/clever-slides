@@ -16,7 +16,7 @@ export const useDraftStore = create<DraftState & DraftActions>()(
   persist(
     (set, get) => ({
       draft: null,
-      setDraft: (draft: Draft) => set({ draft }),
+      setDraft: (draft: Draft | null) => set({ draft }),
     }),
     {
       name: "draft",
