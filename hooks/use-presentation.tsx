@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { getPresentation, updatePresentation, type PresentationUpdate } from "@/lib/utils/supabase";
+import { getPresentation, upsertPresentation, type PresentationUpdate } from "@/lib/utils/supabase";
 
 interface UsePresentationProps {
   presentationId: string;
@@ -35,7 +35,7 @@ export function usePresentation({ presentationId, userId }: UsePresentationProps
       }
 
       const supabase = createClient();
-      return updatePresentation(supabase, {
+      return upsertPresentation(supabase, {
         presentationId,
         userId,
         updates,
@@ -53,7 +53,7 @@ export function usePresentation({ presentationId, userId }: UsePresentationProps
     data,
     isLoading,
     error,
-    updatePresentation: updateMutation.mutateAsync,
+    update: updateMutation.mutateAsync,
     isUpdating: updateMutation.isPending,
     updateError: updateMutation.error,
   };
