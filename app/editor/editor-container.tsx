@@ -23,7 +23,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
   // State of the database saved presentation
   const {
     data: presentation,
-    update: updatePresentation,
+    upsert: upsertPresentation,
     isLoading: isPresentationLoading,
     isUpdating: isPresentationUpdating,
     error: presentationError,
@@ -44,7 +44,8 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
   // Mutation to generate presentation
   const generateMutation = useGeneratePresentation({
     saveFn: (data) => {
-      updatePresentation({
+      // Update on generated
+      upsertPresentation({
         ...localPresentation,
         created_by: user.id!,
         content: data,

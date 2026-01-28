@@ -53,7 +53,7 @@ export function usePresentation({ presentationId, userId }: UsePresentationProps
     data,
     isLoading,
     error,
-    update: updateMutation.mutateAsync,
+    upsert: updateMutation.mutateAsync,
     isUpdating: updateMutation.isPending,
     updateError: updateMutation.error,
   };
