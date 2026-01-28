@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type CanvasContent } from "@/lib/utils/canvas";
+import { aspectRatio } from "motion/react";
 
 export interface CanvasConfig {
   width: number;
@@ -57,7 +58,7 @@ export const useEditorStore = create<EditorState>()(
           canvasConfig: {
             width: canvasConfig.width,
             height: canvasConfig.height,
-            backgroundColor: canvasConfig.backgroundColor
+            backgroundColor: canvasConfig.backgroundColor,
           }
         })
     }),
