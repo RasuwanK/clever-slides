@@ -5,7 +5,6 @@ import { Stage, Layer, Rect } from "react-konva";
 import type { User } from "@/components/ui/auth-status";
 import { usePresentation } from "@/hooks/use-presentation";
 import { useEffect, useRef } from "react";
-import { useDraftStore } from "@/stores/draft-store";
 import { useRouter } from "next/navigation";
 import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 import { Titlebar } from "./titlebar";
@@ -22,16 +21,13 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
 
   // State of the database saved presentation
   const {
-    data: presentation,
+    data: presentation, // Local or fetched presentation
     upsert: upsertPresentation,
     isLoading: isPresentationLoading,
-    isUpdating: isPresentationUpdating,
+    isLocal, // If using local draft
+    isUpdating: isPresentationUpdating, // When saving is in progress
     error: presentationError,
   } = usePresentation({ presentationId, userId: user.id! });
-
-  // Local draft created by the prompt
-  const localPresentation = useDraftStore((state) => state.draft);
-  const setDraft = useDraftStore((state) => state.setDraft);
 
   // Config of the canvas
   const canvasConfig = useEditorStore((state) => state.canvasConfig);
@@ -41,12 +37,13 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
   const content = useEditorStore((state) => state.content);
   const setContent = useEditorStore((state) => state.setContent);
 
+
   // Mutation to generate presentation
   const generateMutation = useGeneratePresentation({
     saveFn: (data) => {
       // Update on generated
       upsertPresentation({
-        ...localPresentation,
+        ...presentation,
         created_by: user.id!,
         content: data,
       });
@@ -74,28 +71,27 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
     }
 
     // If no presentation exists in DB, but there's a local draft, generate from prompt
-    if (presentation === null && localPresentation) {
-      if (!localPresentation.prompt) {
+    if (isLocal && presentation !== null) {
+      if (!presentation.prompt) {
         // TODO: Fix this by opening a modal to enter prompt
         return router.push("/404");
       }
 
+      // Start generating the presentation
       generateMutation.mutate({
-        prompt: localPresentation.prompt,
+        prompt: presentation.prompt,
       });
 
-      setDraft(null); // Clear local draft after generating
     }
   }, [
-    localPresentation,
+    presentation,
     router,
     generateMutation,
     generateMutation.isPending,
     generateMutation.isError,
-    presentation,
     isPresentationLoading,
     presentationError,
-    setDraft
+    isLocal,
   ]);
 
   useEffect(() => {
@@ -143,7 +139,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
             ))} */}
       </div>
       <div id="content" className="flex flex-col gap-10 h-full p-4">
-        <Titlebar />
+        <Titlebar user={user} title={"Sample Title"} />
         <div
           id="slide-editor"
           className="grid grid-cols-[auto_300px] gap-2 w-full h-full"
@@ -191,14 +187,12 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
             <h1 className="flex flex-row gap-2">
               <RobotIcon size={20} /> <span>Your Assistant</span>
             </h1>
-            {localPresentation?.prompt && (
               <div
                 id="prompt"
-                className="bg-white/10 p-2 rounded-sm text-xs text-white/40"
+                className="bg-white/10 p-2 rounded-md text-xs text-white/40"
               >
-                {localPresentation?.prompt}
+                {presentation?.prompt}
               </div>
-            )}
             <div id="chat-container"></div>
           </aside>
         </div>
