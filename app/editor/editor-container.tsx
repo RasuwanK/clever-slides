@@ -136,7 +136,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
       <div id="slides-nav" className="flex flex-col gap-4 h-full">
         {/* {content.slides.map((slide, index) => (
               <Card key={index} className="cursor-pointer w-40 h-20"></Card>
-            ))} */}
+          ))} */}
       </div>
       <div id="content" className="flex flex-col gap-10 h-full p-4">
         <Titlebar user={user} title={"Sample Title"} />
