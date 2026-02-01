@@ -174,12 +174,10 @@ export async function upsertPresentation(
 
   const content = resData[0].content;
 
+  // When presentation is not generated
   if (!isContent(content)) {
     throw new Error("INVALID_CONTENT_STRUCTURE");
   }
 
-  return {
-    ...resData,
-    content: content,
-  };
+  return resData[0] as PresentationRow;
 }
