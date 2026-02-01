@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getPresentation, upsertPresentation, type PresentationUpdate } from "@/lib/utils/supabase";
+import { useDraftStore } from "@/stores/draft-store";
 
 interface UsePresentationProps {
   presentationId: string;
@@ -26,6 +27,10 @@ export function usePresentation({ presentationId, userId }: UsePresentationProps
     staleTime: 60_000,
   });
 
+  // When the presentation is null used the saved draft
+  const draft = useDraftStore((state) => state.draft);
+  const setDraft = useDraftStore((state) => state.setDraft);
+
   // Mutation to update presentation
   const updateMutation = useMutation({
     mutationKey: ["presentation", "update", presentationId, userId],
@@ -46,11 +51,14 @@ export function usePresentation({ presentationId, userId }: UsePresentationProps
         ["presentation", presentationId, userId],
         updated
       );
+
+      setDraft(null);
     },
   });
 
   return {
-    data,
+    data: data ?? draft,
+    isLocal: data === null && draft !== null,
     isLoading,
     error,
     upsert: updateMutation.mutateAsync,
