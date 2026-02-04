@@ -1,3 +1,7 @@
+import { CanvasConfig } from "@/stores/editor-store";
+import type { GeneratedContent } from "./supabase";
+import { Text } from "react-konva";
+
 export interface BaseElement {
   id: string;
   kind: "text" | "image" | "shape" | "line";
@@ -48,4 +52,14 @@ export interface LineElement extends BaseElement {
 // CanvasContent represents the content of a slide canvas
 export interface CanvasContent {
   elements: (TextElement | ImageElement | ShapeElement | LineElement)[];
+}
+
+// Convert the presentation content (slides + title) to a canvas object
+export function toCanvas(canvas: CanvasConfig, generated: GeneratedContent) {
+  return {
+    ...generated,
+    slides: generated.slides.map((slide) => {
+      title:   
+    })
+  }
 }
