@@ -8,7 +8,8 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 import { Titlebar } from "./titlebar";
-import { RobotIcon } from "@phosphor-icons/react";
+import { AIChat } from "./ai-chat";
+import { Json } from "@/lib/types/database.types";
 
 interface EditorProps {
   presentationId: string;
@@ -37,16 +38,18 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
   const content = useEditorStore((state) => state.content);
   const setContent = useEditorStore((state) => state.setContent);
 
-
   // Mutation to generate presentation
   const generateMutation = useGeneratePresentation({
     saveFn: (data) => {
       // Update on generated
-      upsertPresentation({
-        ...presentation,
-        created_by: user.id!,
-        content: data,
-      });
+      if(presentation) {
+        upsertPresentation({
+          ...presentation,
+          created_by: user.id!,
+          response: data,
+          document: data,
+        });
+      }
     },
   });
 
@@ -81,7 +84,6 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
       generateMutation.mutate({
         prompt: presentation.prompt,
       });
-
     }
   }, [
     presentation,
@@ -93,6 +95,8 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
     presentationError,
     isLocal,
   ]);
+
+  console.log(presentation?.response);
 
   useEffect(() => {
     // To resize the canvas
@@ -132,24 +136,24 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
   }, [setCanvasConfig]);
 
   return (
-    <div id="editor" className="grid grid-cols-[200px_auto] w-full h-screen">
+    <div id="editor" className="grid grid-cols-[200px_auto] w-full h-screen overflow-hidden">
       <div id="slides-nav" className="flex flex-col gap-4 h-full">
         {/* {content.slides.map((slide, index) => (
               <Card key={index} className="cursor-pointer w-40 h-20"></Card>
           ))} */}
       </div>
-      <div id="content" className="flex flex-col gap-10 h-full p-4">
+      <div id="content" className="grid grid-rows-[80px_auto] gap-5 h-full p-4">
         <Titlebar user={user} title={"Sample Title"} />
         <div
           id="slide-editor"
-          className="grid grid-cols-[auto_300px] gap-2 w-full h-full"
+          className="grid grid-cols-[auto_350px] gap-2 w-full h-full"
         >
           <div
             id="canvas-and-toolbar"
             className="w-full h-full grid grid-rows-[auto_100px]"
           >
             <div
-              id="canvas-container"
+              id="canvas-con tainer"
               ref={canvasContainerRef}
               className="w-full h-full flex flex-col items-center justify-center"
             >
@@ -172,7 +176,6 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
                       width={200}
                       height={200}
                       fill="royalblue"
-                      draggable
                     />
                   </Layer>
                 </Stage>
@@ -180,21 +183,13 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
             </div>
             <div id="toolbar-container">Toolbar</div>
           </div>
-          <aside
-            id="ai-chat"
-            className="flex flex-col gap-2 bg-black border rounded-md border-primary h-full right-0 top-0 py-4 px-2 text-sm"
-          >
-            <h1 className="flex flex-row gap-2">
-              <RobotIcon size={20} /> <span>Your Assistant</span>
-            </h1>
-              <div
-                id="prompt"
-                className="bg-white/10 p-2 rounded-md text-xs text-white/40"
-              >
-                {presentation?.prompt}
-              </div>
-            <div id="chat-container"></div>
-          </aside>
+          {presentation && (
+            <AIChat
+              prompt={presentation.prompt}
+              isGenerating={generateMutation.isPending}
+              response={presentation.response}
+            />
+          )}
         </div>
       </div>
     </div>
