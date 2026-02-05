@@ -1,5 +1,5 @@
 import { CanvasConfig } from "@/stores/editor-store";
-import type { GeneratedContent } from "./supabase";
+import type { GeneratedContent } from "@/lib/types/utils";
 import { Text } from "react-konva";
 
 export interface BaseElement {
