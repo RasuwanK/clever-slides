@@ -42,8 +42,6 @@ export function UserAvatar({ user }: { user: User | null }) {
 export function AccountButton({ user, ...props }: AuthStatusProps) {
   const router = useRouter();
 
-  console.log(user ? "True" : "False");
-
   return user ? (
     <Button
       variant="outline"
