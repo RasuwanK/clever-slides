@@ -1,4 +1,4 @@
-import { Database } from "@/lib/supabase/database.types";
+import { Database } from "@/lib/types/database.types";
 
 export type PresentationRow =
   Database["public"]["Tables"]["Presentation"]["Row"];
@@ -9,7 +9,7 @@ export type PresentationUpdate =
 
 export type PresentationDraft = Pick<
   Database["public"]["Tables"]["Presentation"]["Row"],
-  "id" | "created_at" | "content" | "prompt"
+  "id" | "created_at" | "document" | "prompt"
 >;
 
 export interface User {

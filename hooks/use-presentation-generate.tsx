@@ -1,6 +1,6 @@
 "use client"
 
-import { generatePresentation } from "@/lib/utils"
+import { generatePresentation } from "@/lib/utils/db"
 import { useMutation } from "@tanstack/react-query"
 
 export function useGeneratePresentation() {

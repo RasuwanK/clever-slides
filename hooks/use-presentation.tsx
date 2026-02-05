@@ -2,7 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { getPresentation, upsertPresentation, type PresentationUpdate } from "@/lib/utils/supabase";
+import { getPresentation, upsertPresentation } from "@/lib/utils/db";
+import type { PresentationUpdate } from "@/lib/types/utils";
 import { useDraftStore } from "@/stores/draft-store";
 
 interface UsePresentationProps {
