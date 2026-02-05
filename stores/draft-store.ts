@@ -1,4 +1,4 @@
-import { Database } from "@/lib/supabase/database.types";
+import { Database } from "@/lib/types/database.types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -14,7 +14,7 @@ type DraftActions = {
 
 export const useDraftStore = create<DraftState & DraftActions>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       draft: null,
       setDraft: (draft: Draft | null) => set({ draft }),
     }),
