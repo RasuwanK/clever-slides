@@ -13,12 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { forwardRef, HTMLAttributes, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 import { useRouter } from "next/navigation";
-import { User } from "lucide-react";
 
 export interface User {
   id: string;
@@ -27,12 +24,11 @@ export interface User {
   avatarUrl: string;
 }
 
-interface AuthStatusProps extends HTMLAttributes<HTMLButtonElement> {
-  isAuth: boolean;
-  user?: User;
+interface AuthStatusProps {
+  user: User | null;
 }
 
-export function UserAvatar({ user }: { user?: User }) {
+export function UserAvatar({ user }: { user: User | null }) {
   return (
     <Avatar className="rounded-full">
       <AvatarImage src={user?.avatarUrl} alt="@username" />
@@ -43,41 +39,36 @@ export function UserAvatar({ user }: { user?: User }) {
   );
 }
 
-export const AccountButton = forwardRef<HTMLButtonElement, AuthStatusProps>(
-  function AccountButton({ isAuth, user, ...props }: AuthStatusProps, ref) {
-    const router = useRouter();
+export function AccountButton({ user, ...props }: AuthStatusProps) {
+  const router = useRouter();
 
-    const Comp = useMemo(() => {
-      return isAuth ? (
-        <Button
-          ref={ref}
-          variant="outline"
-          className="rounded-full p-2 border-2 h-12 border-primary drop-shadow-2xl cursor-pointer flex flex-row items-center"
-          {...props}
-        >
-          <ChevronDownIcon className="w-5 h-5 mr-2 text-primary" />
-          <UserAvatar user={user} />
-        </Button>
-      ) : (
-        <Button
-          onClick={() => {
-            router.push("/auth/signin");
-          }}
-          className="rounded-full p-2 border-2 h-12 border-primary drop-shadow-2xl cursor-pointer flex flex-row items-center"
-        >
-          <span>Sign in</span>
-          <div className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center ml-2">
-            <PersonIcon className="w-6 h-6 text-white relative" />
-          </div>
-        </Button>
-      );
-    }, [isAuth, ref, props, user, router]);
+  console.log(user ? "True" : "False");
 
-    return Comp;
-  }
-);
+  return user ? (
+    <Button
+      variant="outline"
+      className="rounded-full p-2 border-2 h-12 border-primary drop-shadow-2xl cursor-pointer flex flex-row items-center"
+      {...props}
+    >
+      <ChevronDownIcon className="w-5 h-5 mr-2 text-primary" />
+      <UserAvatar user={user} />
+    </Button>
+  ) : (
+    <Button
+      onClick={() => {
+        router.push("/auth/signin");
+      }}
+      className="rounded-full p-2 border-2 h-12 border-primary drop-shadow-2xl cursor-pointer flex flex-row items-center"
+    >
+      <span>Sign in</span>
+      <div className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center ml-2">
+        <PersonIcon className="w-6 h-6 text-white relative" />
+      </div>
+    </Button>
+  );
+}
 
-export default function AuthStatus({ isAuth, user }: AuthStatusProps) {
+export default function AuthStatus({ user }: AuthStatusProps) {
   const supabase = createClient();
   const router = useRouter();
 
@@ -86,12 +77,12 @@ export default function AuthStatus({ isAuth, user }: AuthStatusProps) {
 
     // Redirect to home page after logout
     router.push("/");
-  }
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <AccountButton isAuth={isAuth} user={user} />
+        <AccountButton user={user} />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-70" align="end">
         <DropdownMenuLabel className="flex flex-col gap-2">
