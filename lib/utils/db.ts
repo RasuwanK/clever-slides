@@ -75,17 +75,6 @@ export async function getRecentPresentations(
   return res.data;
 }
 
-// 1. The Type Guard
-// Replace 'slides' with a unique property that exists in your Content type
-function isContent(json: unknown): json is GeneratedContent {
-  return (
-    json !== null &&
-    typeof json === "object" &&
-    "slides" in json &&
-    Array.isArray(json.slides)
-  );
-}
-
 export async function getPresentation(
   client: SupabaseClient<Database>,
   data: {
@@ -95,7 +84,7 @@ export async function getPresentation(
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .select("id, document, created_by, updated_at ,prompt, theme")
+    .select("id, document, created_by, updated_at ,prompt, theme, response")
     .eq("id", data.presentationId)
     .eq("created_by", data.userId);
 
@@ -104,14 +93,6 @@ export async function getPresentation(
   if (resData.length === 0) {
     console.log("No presentation found");
     return null;
-  }
-
-  // 2. Apply the Guard
-  const document = resData[0].document;
-
-  // When no content is available
-  if (!isContent(document)) {
-    throw new Error("INVALID_CONTENT_STRUCTURE");
   }
 
   // Now 'content' is strictly typed as 'Content'
@@ -131,7 +112,7 @@ export async function upsertPresentation(
     .upsert({...data.updates})
     .eq("id", data.presentationId)
     .eq("created_by", data.userId)
-    .select("id, document, created_by, updated_at ,prompt, theme");
+    .select("id, document, created_by, updated_at ,prompt, theme, response");
 
   if (resData === null || resData.length === 0) {
     console.log("No presentation found");
@@ -139,13 +120,6 @@ export async function upsertPresentation(
   }
 
   if (error) throw new Error("Error while updating presentation");
-
-  const content = resData[0].document;
-
-  // When presentation is not generated
-  if (!isContent(content)) {
-    throw new Error("INVALID_CONTENT_STRUCTURE");
-  }
 
   return resData[0] as PresentationRow;
 }
