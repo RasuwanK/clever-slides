@@ -6,8 +6,8 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { AuthStatus } from "@/components/ui/dynamic/auth-status";
-import Prompt from "./prompt";
 import { Typewriter } from "@/components/ui/typewriter";
+import { GenerateInput } from "@/components/ui/generate-input";
 
 export default async function Home() {
   // TODO: Fix the page loading time
@@ -19,10 +19,6 @@ export default async function Home() {
 
   const queryClient = new QueryClient();
 
-  if (user?.id === undefined || user?.email === undefined) {
-    throw new Error("User object is missing required properties (email and).");
-  }
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex flex-col">
@@ -31,13 +27,16 @@ export default async function Home() {
             <Logo />
             <div className="ml-auto">
               <AuthStatus
-                isAuth={user ? true : false}
-                user={{
-                  id: user?.id,
-                  name: user?.user_metadata?.full_name,
-                  email: user?.email,
-                  avatarUrl: user?.user_metadata?.avatar_url,
-                }}
+                user={
+                  user !== null
+                    ? {
+                        id: user?.id as string,
+                        name: user?.user_metadata?.full_name,
+                        email: user?.email as string,
+                        avatarUrl: user?.user_metadata.avatar_url,
+                      }
+                    : null
+                }
               />
             </div>
           </header>
@@ -58,7 +57,7 @@ export default async function Home() {
                   Create presentations with a single prompt
                 </p>
               </header>
-              <Prompt userId={user?.id} />
+              <GenerateInput userId={user?.id} />
             </div>
           </div>
         </main>
