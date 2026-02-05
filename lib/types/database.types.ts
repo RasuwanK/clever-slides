@@ -61,6 +61,7 @@ export type Database = {
           id: string
           is_deleted: boolean
           prompt: string | null
+          response: Json | null
           status: Database["public"]["Enums"]["status"]
           theme: Json | null
           updated_at: string | null
@@ -72,6 +73,7 @@ export type Database = {
           id: string
           is_deleted?: boolean
           prompt?: string | null
+          response?: Json | null
           status?: Database["public"]["Enums"]["status"]
           theme?: Json | null
           updated_at?: string | null
@@ -83,6 +85,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean
           prompt?: string | null
+          response?: Json | null
           status?: Database["public"]["Enums"]["status"]
           theme?: Json | null
           updated_at?: string | null
