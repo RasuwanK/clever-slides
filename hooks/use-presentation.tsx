@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getPresentation, upsertPresentation } from "@/lib/utils/db";
-import type { PresentationUpdate } from "@/lib/types/utils";
+import type { PresentationInsert } from "@/lib/types/utils";
 import { useDraftStore } from "@/stores/draft-store";
 
 interface UsePresentationProps {
@@ -11,9 +11,12 @@ interface UsePresentationProps {
   userId: string;
 }
 
-export function usePresentation({ presentationId, userId }: UsePresentationProps) {
+export function usePresentation({
+  presentationId,
+  userId,
+}: UsePresentationProps) {
   const queryClient = useQueryClient();
-  
+
   // Fetch presentation data
   const { data, isLoading, error } = useQuery({
     queryKey: ["presentation", presentationId, userId],
@@ -35,7 +38,7 @@ export function usePresentation({ presentationId, userId }: UsePresentationProps
   // Mutation to update presentation
   const updateMutation = useMutation({
     mutationKey: ["presentation", "update", presentationId, userId],
-    mutationFn: async (updates: PresentationUpdate) => {
+    mutationFn: async (updates: PresentationInsert) => {
       if (!presentationId || !userId) {
         throw new Error("MISSING_IDS");
       }
@@ -50,7 +53,7 @@ export function usePresentation({ presentationId, userId }: UsePresentationProps
     onSuccess: (updated) => {
       queryClient.setQueryData(
         ["presentation", presentationId, userId],
-        updated
+        updated,
       );
 
       setDraft(null);
