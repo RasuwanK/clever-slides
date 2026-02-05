@@ -1,11 +1,10 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Database } from "@/lib/supabase/database.types";
+import { Database } from "@/lib/types/database.types";
 import type {
   GeneratedContent,
   PresentationDraft,
   PresentationInsert,
   PresentationRow,
-  PresentationUpdate,
 } from "@/lib/types/utils";
 
 export async function generatePresentation(payload: {
@@ -96,7 +95,7 @@ export async function getPresentation(
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .select("id, content, created_by, updated_at ,prompt, theme")
+    .select("id, document, created_by, updated_at ,prompt, theme")
     .eq("id", data.presentationId)
     .eq("created_by", data.userId);
 
@@ -108,10 +107,10 @@ export async function getPresentation(
   }
 
   // 2. Apply the Guard
-  const content = resData[0].content;
+  const document = resData[0].document;
 
   // When no content is available
-  if (!isContent(content)) {
+  if (!isContent(document)) {
     throw new Error("INVALID_CONTENT_STRUCTURE");
   }
 
@@ -124,15 +123,15 @@ export async function upsertPresentation(
   data: {
     presentationId: string;
     userId: string;
-    updates: PresentationUpdate;
+    updates: PresentationInsert;
   },
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .upsert({ ...data.updates })
+    .upsert({...data.updates})
     .eq("id", data.presentationId)
     .eq("created_by", data.userId)
-    .select("id, content, created_by, updated_at ,prompt, theme");
+    .select("id, document, created_by, updated_at ,prompt, theme");
 
   if (resData === null || resData.length === 0) {
     console.log("No presentation found");
@@ -141,7 +140,7 @@ export async function upsertPresentation(
 
   if (error) throw new Error("Error while updating presentation");
 
-  const content = resData[0].content;
+  const content = resData[0].document;
 
   // When presentation is not generated
   if (!isContent(content)) {
