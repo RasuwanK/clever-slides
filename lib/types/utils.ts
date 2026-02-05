@@ -19,7 +19,7 @@ export interface User {
   avatar_url?: string;
 }
 
-export interface GeneratedContent {
+export type GeneratedContent = {
   title: string;
   theme: {
     accentColor: string;
@@ -36,4 +36,4 @@ export interface GeneratedContent {
       bullets: string[];
     },
   ];
-}
+};
