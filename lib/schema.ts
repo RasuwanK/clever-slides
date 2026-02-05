@@ -44,3 +44,9 @@ export const PresentationDraftSchema = z.object({
   created_by: z.string(),
   theme: z.null(),
 });
+
+export const PromptSchema = z.object({
+  width: z.number(),
+  height: z.number(),
+  prompt: z.string().nonempty(),
+})
