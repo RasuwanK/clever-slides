@@ -40,6 +40,7 @@ export function GenerateInput({ userId }: GenerateInputProps) {
         });
 
         if (!parsed.success) {
+          console.log(formState);
           console.error("Presentation couldn't generate due to invalid fields");
           return;
         }
@@ -94,11 +95,12 @@ export function GenerateInput({ userId }: GenerateInputProps) {
           <Field className="w-[50%]">
             <Input
               type="text"
+              name="width"
               placeholder="Width"
               defaultValue={formState.width.toString()}
               onChange={(e) => {
                 const width = Number(e.target.value);
-                setField("width", Number(e.target.value));
+                setField("width", width);
 
                 if (Number.isNaN(width)) {
                   setError("width", "Invalid dimensions");
@@ -114,11 +116,12 @@ export function GenerateInput({ userId }: GenerateInputProps) {
           <Field className="w-[50%]">
             <Input
               type="text"
+              name="width"
               placeholder="Height"
               defaultValue={formState.height.toString()}
               onChange={(e) => {
                 const height = Number(e.target.value);
-                setField("height", e.target.value);
+                setField("height", height);
 
                 if (Number.isNaN(height)) {
                   setError("height", "Invalid dimensions");
@@ -144,7 +147,7 @@ export function GenerateInput({ userId }: GenerateInputProps) {
           <PaperPlaneTiltIcon size={32} /> Generate
         </Button>
       </div>
-      {(errors?.height || errors?.prompt || errors?.width) && (
+      {(errors?.height || errors?.width) && (
         <div
           id="errors"
           className="flex flex-row justify-center text-xs bg-primary rounded-xs p-1"
