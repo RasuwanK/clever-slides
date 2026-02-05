@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       temperature: 0.3,
       stream: false,
     });
-  } catch (error: any) {
+  } catch (error:any) {
     console.log('GROQ ERROR ! =>', error);
     if (error?.code === 429) {
       return new Response(null, {
@@ -44,6 +44,8 @@ export async function POST(req: Request) {
   }
 
   let parsedJSON;
+
+  console.log(content);
 
   try {
     parsedJSON = JSON.parse(content);
