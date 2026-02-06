@@ -20,10 +20,16 @@ import {
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group";
-
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@/components/ui/item";
+import { Skeleton } from "../ui/skeleton";
 interface AIChatProps {
   isGenerating: boolean;
-  prompt: string | null;
+  prompt?: string | null;
   response?: GeneratedContent;
 }
 
@@ -31,51 +37,99 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
   return (
     <Card
       id="ai-chat"
-      className="relative flex flex-col gap-2 border-primary w-full h-[80vh] right-0 top-0 py-4 px-2 text-sm"
+      className="relative flex flex-col gap-2 border-primary w-full h-[80vh] right-0 top-0 py-4 px-2 text-xs"
     >
       <CardHeader className="px-1">
         <CardTitle>
-          <h1 className="flex flex-row gap-2">
-            <RobotIcon size={20} /> <span>Your Assistant</span>
+          <h1 className="flex flex-row gap-2 items-center">
+            <RobotIcon size={20} /> <span>Vibe Presentation Assistant</span>
           </h1>
         </CardTitle>
-        <CardDescription className="text-xs py-2">
-          <span className="font-bold">Prompt: </span>
-          {prompt}
-        </CardDescription>
+        {prompt && (
+          <CardDescription className="text-xs py-2">
+            <span className="font-bold">Prompt: </span>
+            {prompt}
+          </CardDescription>
+        )}
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 px-1 h-full overflow-y-scroll py-3">
-        {isGenerating ? "Loading" : ""}
-        <p className="text-gray-400">Generated slides</p>
-        <div id="generated-slides" className="flex flex-col gap-4">
-          {response?.slides.map((slide, slideIndex) => (
-            <Card key={slideIndex}>
-              <CardHeader>
-                <CardTitle>{slide.title}</CardTitle>
-                <CardDescription>
-                  Content generated for slide {slideIndex + 1}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-xs">
-                {slide.bullets.length === 0 ? (
-                  <p>Used as a cover slide. No content generated</p>
-                ) : (
-                  <ul className="list-disc">
-                    {slide.bullets.map((bullet, bulletIndex) => (
-                      <li key={bulletIndex}>{bullet}</li>
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button className="w-full text-xs">
-                  Go to Slide {slideIndex + 1} <ArrowRightIcon size="20" />
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      </CardContent>
+      {prompt ? (
+        <CardContent className="flex flex-col gap-4 px-1 h-full overflow-y-scroll py-3">
+          <p className="text-gray-400">
+            {isGenerating ? "Generating slides" : "Generated slides"}
+          </p>
+          <div id="generated-slides" className="flex flex-col gap-4">
+            {isGenerating
+              ? [1, 2, 3, 4, 5].map((fakeSlide, slideIndex) => (
+                  <Card key={slideIndex}>
+                    <CardHeader>
+                      <CardTitle>
+                        <Skeleton className="h-4 w-full" />
+                      </CardTitle>
+                      <CardDescription>
+                        <Skeleton className="h-2 w-[80%]" />
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc">
+                        {[1, 2, 3, 4, 5, 6].map((bullet, bulletIndex) => (
+                          <li key={bulletIndex}>
+                            <Skeleton className="h-2 w-[80%]" />
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                    <CardFooter>
+                      <Skeleton className="h-6 w-full" />
+                    </CardFooter>
+                  </Card>
+                ))
+              : response?.slides.map((slide, slideIndex) => (
+                  <Card key={slideIndex} className="text-xs">
+                    <CardHeader>
+                      <CardTitle>{slide.title}</CardTitle>
+                      <CardDescription className="text-xs">
+                        Content generated for slide {slideIndex + 1}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs">
+                      {!slide.content ? (
+                        <p>Used as a cover slide. No content generated</p>
+                      ) : (
+                        <ul className="list-disc">
+                          {slide.content
+                            .map(({ bullets }) => [...bullets])
+                            .reduce((prev, curr) => curr.concat(...prev))
+                            .map((bullet, bulletIndex) => (
+                              <li key={bulletIndex}>{bullet}</li>
+                            ))}
+                        </ul>
+                      )}
+                    </CardContent>
+                    <CardFooter>
+                      <Button className="w-full text-xs">
+                        Go to Slide {slideIndex + 1}{" "}
+                        <ArrowRightIcon size="20" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+          </div>
+        </CardContent>
+      ) : (
+        <CardContent className="flex flex-col justify-center gap-4 px-1 h-full overflow-y-scroll py-3">
+          <Item>
+            <ItemContent className="text-center">
+              <ItemTitle>
+                Hello there ! How shall I reshape your presentation.
+              </ItemTitle>
+              <ItemDescription>
+                I&apos;ll Guide you to create the best presentation out of the
+                box.
+              </ItemDescription>
+            </ItemContent>
+          </Item>
+        </CardContent>
+      )}
       <CardFooter className="px-1">
         <div id="message-box" className="flex w-full flex-col mt-4">
           <InputGroup className="w-full text-xs">
