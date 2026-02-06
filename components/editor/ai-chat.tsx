@@ -33,7 +33,7 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
       id="ai-chat"
       className="relative flex flex-col gap-2 border-primary w-full h-[80vh] right-0 top-0 py-4 px-2 text-sm"
     >
-      <CardHeader>
+      <CardHeader className="px-1">
         <CardTitle>
           <h1 className="flex flex-row gap-2">
             <RobotIcon size={20} /> <span>Your Assistant</span>
@@ -44,7 +44,7 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
           {prompt}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 px-1 overflow-y-scroll py-3">
+      <CardContent className="flex flex-col gap-4 px-1 h-full overflow-y-scroll py-3">
         {isGenerating ? "Loading" : ""}
         <p className="text-gray-400">Generated slides</p>
         <div id="generated-slides" className="flex flex-col gap-4">
