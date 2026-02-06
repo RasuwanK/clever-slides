@@ -25,10 +25,10 @@ export interface User {
 }
 
 interface AuthStatusProps {
-  user: User | null;
+  user?: User | null;
 }
 
-export function UserAvatar({ user }: { user: User | null }) {
+export function UserAvatar({ user }: { user?: User | null }) {
   return (
     <Avatar className="rounded-full">
       <AvatarImage src={user?.avatarUrl} alt="@username" />
