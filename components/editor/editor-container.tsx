@@ -157,18 +157,14 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
               id="canvas-con tainer"
               ref={canvasContainerRef}
               className="w-full h-full flex flex-col items-center justify-center"
-            >
-              
-            </div>
+            ></div>
             <div id="toolbar-container">Toolbar</div>
           </div>
-          {presentation && (
-            <AIChat
-              prompt={presentation.prompt}
-              isGenerating={generateMutation.isPending}
-              response={presentation.response as GeneratedContent}
-            />
-          )}
+          <AIChat
+            prompt={presentation?.prompt}
+            isGenerating={generateMutation.isPending && isPresentationLoading}
+            response={presentation?.response as GeneratedContent}
+          />
         </div>
       </div>
     </div>
