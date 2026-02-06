@@ -68,8 +68,8 @@
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
 
-  --accent: white; /* Dark Grey for hover states */
-  --accent-foreground: black; /* Text color on hover */
+  --accent: #01879060; /* Dark Grey for hover states */
+  --accent-foreground: rgb(255, 255, 255); /* Text color on hover */
 
   --destructive: oklch(0.577 0.245 27.325);
 
