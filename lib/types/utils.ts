@@ -33,7 +33,10 @@ export type GeneratedContent = {
         | "title_top_bullets_bottom"
         | "two_column";
       title: string;
-      bullets: string[];
+      content?: {
+        position: "top" | "left" | "right" | "bottom";
+        bullets: ["string"];
+      }[];
     },
   ];
 };
