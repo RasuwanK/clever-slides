@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation';
-import EditorContainer from '../editor-container';
+import EditorContainer from '@/components/editor/editor-container';
 
 export default async function EditorPage({
   params
