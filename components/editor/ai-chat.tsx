@@ -36,8 +36,8 @@ interface AIChatProps {
 export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
   return (
     <Card
-      id="ai-chat"
-      className="relative flex flex-col gap-2 border-primary w-full h-[80vh] right-0 top-0 py-4 px-2 text-xs"
+      id="ai-chat"  
+      className="relative flex flex-col border-primary w-full h-[80vh] right-0 top-0 px-2 text-xs"
     >
       <CardHeader className="px-1">
         <CardTitle>
@@ -45,15 +45,15 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
             <RobotIcon size={20} /> <span>Vibe Presentation Assistant</span>
           </h1>
         </CardTitle>
-        {prompt && (
-          <CardDescription className="text-xs py-2">
-            <span className="font-bold">Prompt: </span>
-            {prompt}
-          </CardDescription>
-        )}
       </CardHeader>
       {prompt ? (
-        <CardContent className="flex flex-col gap-4 px-1 h-full overflow-y-scroll py-3">
+        <CardContent className="flex flex-col gap-4 px-1 h-full overflow-y-scroll">
+          {prompt && (
+            <CardDescription className="text-xs py-2">
+              <span className="font-bold">Prompt: </span>
+              {prompt}
+            </CardDescription>
+          )}
           <p className="text-gray-400">
             {isGenerating ? "Generating slides" : "Generated slides"}
           </p>
@@ -92,7 +92,7 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="text-xs">
-                      {!slide.content ? (
+                      {!slide.content || slide.content.length === 0 ? (
                         <p>Used as a cover slide. No content generated</p>
                       ) : (
                         <ul className="list-disc">
@@ -130,7 +130,7 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
           </Item>
         </CardContent>
       )}
-      <CardFooter className="px-1">
+      <CardFooter className="px-0">
         <div id="message-box" className="flex w-full flex-col mt-4">
           <InputGroup className="w-full text-xs">
             <InputGroupTextarea

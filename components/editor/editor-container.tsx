@@ -162,7 +162,7 @@ export default function EditorContainer({ presentationId, user }: EditorProps) {
           </div>
           <AIChat
             prompt={presentation?.prompt}
-            isGenerating={generateMutation.isPending && isPresentationLoading}
+            isGenerating={generateMutation.isPending || isPresentationLoading}
             response={presentation?.response as GeneratedContent}
           />
         </div>
