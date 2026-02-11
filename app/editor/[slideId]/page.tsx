@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation';
-import EditorContainer from '@/components/editor/editor-container';
+import Editor from '@/components/editor/editor';
 
 export default async function EditorPage({
   params
@@ -18,7 +18,7 @@ export default async function EditorPage({
   return (
     <div className="flex flex-col">
       <main className="h-screen">
-        <EditorContainer presentationId={slideId} user={{
+        <Editor presentationId={slideId} user={{
           id: user.id,
           email: user.email!,
           name: user.user_metadata.full_name,
