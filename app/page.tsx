@@ -20,26 +20,24 @@ export default async function Home() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="flex flex-col">
-        <main className="w-full flex flex-col items-center jus min-h-screen mb-30">
-          <Header user={user} />
-          <div
-            id="promt-input-container"
-            className="mt-[calc(30vh)] flex flex-col gap-10 w-[90%] sm:max-w-2xl"
-          >
-            <header className="flex flex-col items-center gap-5">
-              <Typewriter
-                text="Think. Type. Create"
-                className="text-4xl sm:text-6xl text-center font-bold text-primary"
-              />
-              <p className="text-sm sm:text-xl text-center">
-                Create presentations with a single prompt
-              </p>
-            </header>
-            <MainPromptInput userId={user?.id} />
-          </div>
-        </main>
-      </div>
+      <main className="min-h-screen flex flex-col items-center justify-center">
+        <Header user={user} />
+        <div
+          id="prompt-input-container"
+          className="flex flex-col justify-center h-full gap-10 w-full md:w-3xl px-2"
+        >
+          <header className="flex flex-col items-center gap-5">
+            <Typewriter
+              text="Think. Type. Create."
+              className="text-4xl sm:text-6xl text-center font-bold text-primary"
+            />
+            <p className="text-sm sm:text-xl text-center">
+              Create presentations with a single prompt
+            </p>
+          </header>
+          <MainPromptInput userId={user?.id} />
+        </div>
+      </main>
     </HydrationBoundary>
   );
 }

@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export default function Header({ user }: HeaderProps) {
   return (
-    <header className="flex flex-row w-full items-center fixed top-0 h-25 p-5">
+    <header className="flex flex-row w-full fixed top-0 h-25 items-center p-5">
       <Logo />
       <div className="ml-auto">
         <AuthStatus

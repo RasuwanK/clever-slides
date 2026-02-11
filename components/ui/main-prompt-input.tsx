@@ -3,7 +3,7 @@
 import { Button } from "./button";
 import { Textarea } from "./textarea";
 import { cn } from "@/lib/utils/tailwind";
-import { PaperPlaneTiltIcon } from "@phosphor-icons/react";
+import { GearSixIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react";
 import { Input } from "./input";
 import { PromptSchema } from "@/lib/schema";
 import { usePromptFormStore } from "@/stores/prompt-store";
@@ -28,9 +28,7 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
 
   return (
     <form
-      className={cn(
-        "flex-col gap-5 placeholder:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 field-sizing-content min-h-16 w-full bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
-      )}
+      className={cn("flex-col gap-5")}
       onSubmit={(e) => {
         e.preventDefault();
 
@@ -78,7 +76,7 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
           rows={5}
           cols={1}
           placeholder="Create a professional presentation for a pitch deck about an AI startup"
-          className="min-h-0 shadow-none border-0 focus-visible:border-none resize-none focus-visible:ring-0"
+          className="min-h-0 py-4 text-sm sm:text-md shadow-none border-0 focus-visible:border-none resize-none focus-visible:ring-0"
           onChange={(e) => {
             setField("prompt", e.target.value);
 
@@ -93,7 +91,7 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
           <div id="toolbar" className="flex flex-row items-center w-full">
             <div
               id="resolution-tool"
-              className="flex flex-row items-center gap-2 text-xs"
+              className="hidden sm:flex flex-row items-center w-full gap-2 text-xs"
             >
               <p>Resolution (px)</p>
               <Field className="w-[50%]">
@@ -139,6 +137,14 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
                 />
               </Field>
             </div>
+            <Button
+              type="button"
+              variant="outline"
+              id="settings-button"
+              className="flex"
+            >
+              <GearSixIcon />
+            </Button>
             <Button
               type="submit"
               disabled={
