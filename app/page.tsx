@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { AuthStatus } from "@/components/ui/dynamic/auth-status";
 import { Typewriter } from "@/components/ui/typewriter";
-import { GenerateInput } from "@/components/ui/generate-input";
+import { MainPromptInput } from "@/components/ui/main-prompt-input";
 
 export default async function Home() {
   // TODO: Fix the page loading time
@@ -57,7 +57,7 @@ export default async function Home() {
                   Create presentations with a single prompt
                 </p>
               </header>
-              <GenerateInput userId={user?.id} />
+              <MainPromptInput userId={user?.id} />
             </div>
           </div>
         </main>
