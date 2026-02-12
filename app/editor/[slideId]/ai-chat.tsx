@@ -26,7 +26,7 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "../../../components/ui/skeleton";
 interface AIChatProps {
   isGenerating: boolean;
   prompt?: string | null;
@@ -34,10 +34,11 @@ interface AIChatProps {
 }
 
 export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
+  console.log(isGenerating);
   return (
     <Card
-      id="ai-chat"  
-      className="relative flex flex-col border-primary w-full h-[80vh] right-0 top-0 px-2 text-xs"
+      id="ai-chat"
+      className="hidden sm:flex flex-col border-primary w-full h-[80vh] px-2 text-xs"
     >
       <CardHeader className="px-1">
         <CardTitle>
@@ -58,7 +59,7 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
             {isGenerating ? "Generating slides" : "Generated slides"}
           </p>
           <div id="generated-slides" className="flex flex-col gap-4">
-            {isGenerating
+            {isGenerating === true
               ? [1, 2, 3, 4, 5].map((fakeSlide, slideIndex) => (
                   <Card key={slideIndex}>
                     <CardHeader>

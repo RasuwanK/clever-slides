@@ -7,7 +7,7 @@ import { usePresentation } from "@/hooks/use-presentation";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
-import { Titlebar } from "@/components/editor/titlebar";
+import { Titlebar } from "@/app/editor/[slideId]/titlebar";
 import { AIChat } from "./ai-chat";
 import { GeneratedContent } from "@/lib/types/utils";
 
@@ -55,7 +55,6 @@ export default function Editor({ presentationId, user }: EditorProps) {
 
   // To get reference to the canvas parent
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-
 
   // To generate a new presentation if none exists
   useEffect(() => {
@@ -134,25 +133,31 @@ export default function Editor({ presentationId, user }: EditorProps) {
   return (
     <div
       id="editor"
-      className="grid grid-cols-[200px_auto] w-full h-screen overflow-hidden"
+      className="grid grid-cols-1 grid-rows-[90vh_10vh] sm:grid-rows-1 sm:grid-cols-[200px_auto] w-full h-screen overflow-hidden"
     >
-      <div id="slides-nav" className="flex flex-col gap-4 h-full">
+      <div
+        id="slides-nav"
+        className="row-start-2 row-end-3 sm:row-start-1 sm:row-end-2 flex flex-col gap-4 h-full"
+      >
         {/* {content.slides.map((slide, index) => (
               <Card key={index} className="cursor-pointer w-40 h-20"></Card>
           ))} */}
       </div>
-      <div id="content" className="grid grid-rows-[80px_auto] gap-5 h-full p-4">
+      <div
+        id="content"
+        className="row-start-1 row-end-2 sm:row-start-1 sm:row-end-2 grid grid-rows-[60px_auto] sm:grid-rows-[80px_auto] gap-5 h-full p-4"
+      >
         <Titlebar user={user} title={"Sample Title"} />
         <div
           id="slide-editor"
-          className="grid grid-cols-[auto_350px] gap-2 w-full h-full"
+          className="grid grid-cols-1  sm:grid-cols-[auto_350px] gap-2 w-full h-full"
         >
           <div
             id="canvas-and-toolbar"
             className="w-full h-full grid grid-rows-[auto_100px]"
           >
             <div
-              id="canvas-con tainer"
+              id="canvas-container"
               ref={canvasContainerRef}
               className="w-full h-full flex flex-col items-center justify-center"
             ></div>

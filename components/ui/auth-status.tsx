@@ -45,7 +45,7 @@ export function AccountButton({ user, ...props }: AuthStatusProps) {
   return user ? (
     <Button
       variant="outline"
-      className="rounded-full p-2 border-2 h-12 border-primary drop-shadow-2xl cursor-pointer flex flex-row items-center"
+      className="rounded-full border-2 h-12 border-primary drop-shadow-2xl cursor-pointer flex flex-row items-center"
       {...props}
     >
       <ChevronDownIcon className="w-5 h-5 mr-2 text-primary" />
