@@ -10,6 +10,7 @@ import {
 import { User } from "@/components/ui/auth-status";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
 import Link from "next/link";
+import { Sidebar, useSidebar } from "@/components/ui/sidebar";
 
 interface TitlebarProps {
   user?: User;
@@ -17,6 +18,7 @@ interface TitlebarProps {
 }
 
 export function Titlebar({ user, title }: TitlebarProps) {
+  const { toggleSidebar } = useSidebar();
   return (
     <nav
       id="navbar"
@@ -35,11 +37,11 @@ export function Titlebar({ user, title }: TitlebarProps) {
         className="flex flex-row ml-auto gap-4 items-center"
       >
         <div id="controls" className="hidden sm:flex flex-row gap-2">
-          <Button variant="outline" className="min-w-40">
+          <Button variant="outline" className="min-w-20 md:min-w-40">
             <DownloadSimpleIcon size={32} />
             Export
           </Button>
-          <Button className="min-w-40">
+          <Button className="min-w-20 md:min-w-40">
             <PresentationIcon size={32} />
             Present
           </Button>
@@ -48,7 +50,11 @@ export function Titlebar({ user, title }: TitlebarProps) {
           <AuthStatus user={user} />
         </div>
         <div className="block sm:hidden">
-          <Button variant="outline" className="border-2">
+          <Button
+            onClick={() => toggleSidebar()}
+            variant="outline"
+            className="border-2"
+          >
             <ListIcon />
           </Button>
         </div>
