@@ -49,4 +49,13 @@ export const PromptSchema = z.object({
   width: z.number(),
   height: z.number(),
   prompt: z.string().nonempty(),
-})
+});
+
+export const GenerateRequest = z.object({
+  prompt: z.string(),
+});
+
+export const GenerateUpdateRequest = z.object({
+  updatePrompt: z.string(),
+  currentSlide: z.string(),
+});
