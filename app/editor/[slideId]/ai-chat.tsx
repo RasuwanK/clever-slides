@@ -1,5 +1,8 @@
+"use client";
+
 import {
   ArrowRightIcon,
+  PaperclipIcon,
   PaperPlaneRightIcon,
   RobotIcon,
 } from "@phosphor-icons/react";
@@ -27,14 +30,24 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { Skeleton } from "../../../components/ui/skeleton";
+import { useChatFormStore } from "@/stores/chat-store";
+
 interface AIChatProps {
   isGenerating: boolean;
   prompt?: string | null;
   response?: GeneratedContent;
+  generateFn: (props: { updatePrompt: string; currentSlide: string }) => void;
 }
 
-export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
-  console.log(isGenerating);
+export function AIChat({
+  prompt,
+  response,
+  isGenerating,
+  generateFn,
+}: AIChatProps) {
+  const chatFormState = useChatFormStore((state) => state.formState);
+  const setField = useChatFormStore((state) => state.setField);
+
   return (
     <Card
       id="ai-chat"
@@ -107,9 +120,13 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
                       )}
                     </CardContent>
                     <CardFooter>
-                      <Button className="w-full text-xs">
-                        Go to Slide {slideIndex + 1}{" "}
-                        <ArrowRightIcon size="20" />
+                      <Button
+                        onClick={() => {
+                          setField("currentSlide", JSON.stringify(slide));
+                        }}
+                        className="w-full text-xs"
+                      >
+                        <PaperclipIcon /> Select Slide {slideIndex + 1}{" "}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -133,22 +150,32 @@ export function AIChat({ prompt, response, isGenerating }: AIChatProps) {
       )}
       <CardFooter className="px-0">
         <div id="message-box" className="flex w-full flex-col mt-4">
-          <InputGroup className="w-full text-xs">
-            <InputGroupTextarea
-              className="text-xs"
-              placeholder="Enter the your prompt to modify and adjust the content"
-            />
-            <InputGroupAddon align="block-start"></InputGroupAddon>
-            <InputGroupAddon align="block-end">
-              <InputGroupText className="text-xs">500/2</InputGroupText>
-              <InputGroupButton
-                variant="default"
-                className="rounded-full ml-auto"
-              >
-                <PaperPlaneRightIcon />
-              </InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <InputGroup className="w-full text-xs">
+              <InputGroupTextarea
+                onChange={(e) => {
+                  setField("prompt", e.target.value);
+                }}
+                className="text-xs"
+                placeholder="Enter the your prompt to modify and adjust the content"
+              />
+              <InputGroupAddon align="block-start"></InputGroupAddon>
+              <InputGroupAddon align="block-end">
+                <InputGroupText className="text-xs">500/2</InputGroupText>
+                <InputGroupButton
+                  type="submit"
+                  variant="default"
+                  className="rounded-full ml-auto"
+                >
+                  <PaperPlaneRightIcon />
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </form>
         </div>
       </CardFooter>
     </Card>
