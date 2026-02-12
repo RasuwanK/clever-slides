@@ -1,12 +1,16 @@
 "use server";
 
 import { createClient } from "./supabase/server";
-import { SignUpSchema, SignInSchema } from "./schema";
-import type { SignUpFormState, SignInFormState } from "@/lib/types/actions";
+import { SignUpSchema, SignInSchema, GenerateUpdateRequest } from "./schema";
+import type {
+  SignUpFormState,
+  SignInFormState,
+  PromptFormState,
+} from "@/lib/types/actions";
 
 export async function signUpAction(
   initialState: SignUpFormState,
-  formData: FormData
+  formData: FormData,
 ) {
   const rawFormData = {
     email: formData.get("email"),
@@ -52,8 +56,8 @@ export async function signUpAction(
       data: {
         first_name: validatedData.data.firstName,
         last_name: validatedData.data.lastName,
-      }
-    }
+      },
+    },
   });
 
   if (signUpError) {
@@ -78,7 +82,7 @@ export async function signUpAction(
 
 export async function signInAction(
   initialState: SignInFormState,
-  formData: FormData
+  formData: FormData,
 ) {
   const rawFormData = {
     email: formData.get("email"),
