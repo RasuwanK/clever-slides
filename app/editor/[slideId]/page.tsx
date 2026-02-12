@@ -18,18 +18,16 @@ export default async function EditorPage({
   if (!user) redirect("/auth/signin");
 
   return (
-    <div className="flex flex-col">
-      <main className="h-screen">
-        <Editor
-          presentationId={slideId}
-          user={{
-            id: user.id,
-            email: user.email!,
-            name: user.user_metadata.full_name,
-            avatarUrl: user.user_metadata.avatar_url,
-          }}
-        />
-      </main>
-    </div>
+    <main className="flex flex-col w-full h-screen">
+      <Editor
+        presentationId={slideId}
+        user={{
+          id: user.id,
+          email: user.email!,
+          name: user.user_metadata.full_name,
+          avatarUrl: user.user_metadata.avatar_url,
+        }}
+      />
+    </main>
   );
 }
