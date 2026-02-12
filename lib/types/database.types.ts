@@ -53,15 +53,126 @@ export type Database = {
         }
         Relationships: []
       }
+      Chat: {
+        Row: {
+          created_at: string
+          id: string
+          main_prompt: string
+          presentation: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          main_prompt: string
+          presentation?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          main_prompt?: string
+          presentation?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Chat_presentation_fkey"
+            columns: ["presentation"]
+            isOneToOne: false
+            referencedRelation: "Presentation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Documents: {
+        Row: {
+          belongs_to: string
+          created_at: string
+          id: string
+          json_content: Json | null
+          version: number
+        }
+        Insert: {
+          belongs_to?: string
+          created_at?: string
+          id?: string
+          json_content?: Json | null
+          version?: number
+        }
+        Update: {
+          belongs_to?: string
+          created_at?: string
+          id?: string
+          json_content?: Json | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Documents_belongs_to_fkey"
+            columns: ["belongs_to"]
+            isOneToOne: false
+            referencedRelation: "Presentation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Messages: {
+        Row: {
+          chat: string
+          created_at: string
+          id: string
+          message: Json | null
+          replying_to: string | null
+          role: string | null
+          sent_by: string
+        }
+        Insert: {
+          chat: string
+          created_at?: string
+          id: string
+          message?: Json | null
+          replying_to?: string | null
+          role?: string | null
+          sent_by?: string
+        }
+        Update: {
+          chat?: string
+          created_at?: string
+          id?: string
+          message?: Json | null
+          replying_to?: string | null
+          role?: string | null
+          sent_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Messages_chat_fkey"
+            columns: ["chat"]
+            isOneToOne: false
+            referencedRelation: "Chat"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Messages_replying_to_fkey"
+            columns: ["replying_to"]
+            isOneToOne: false
+            referencedRelation: "Chat"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Messages_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "Account"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Presentation: {
         Row: {
           created_at: string
           created_by: string | null
-          document: Json | null
           id: string
           is_deleted: boolean
           prompt: string | null
-          response: Json | null
           status: Database["public"]["Enums"]["status"]
           theme: Json | null
           updated_at: string | null
@@ -69,11 +180,9 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
-          document?: Json | null
           id: string
           is_deleted?: boolean
           prompt?: string | null
-          response?: Json | null
           status?: Database["public"]["Enums"]["status"]
           theme?: Json | null
           updated_at?: string | null
@@ -81,11 +190,9 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
-          document?: Json | null
           id?: string
           is_deleted?: boolean
           prompt?: string | null
-          response?: Json | null
           status?: Database["public"]["Enums"]["status"]
           theme?: Json | null
           updated_at?: string | null
