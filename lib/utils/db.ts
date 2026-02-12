@@ -1,15 +1,21 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/types/database.types";
 import type {
+  DocumentInsert,
   GeneratedContent,
   PresentationDraft,
   PresentationInsert,
   PresentationRow,
+  ChatInsert,
 } from "@/lib/types/utils";
 
-export async function generatePresentation(payload: {
-  prompt: string;
-}): Promise<GeneratedContent> {
+export async function generatePresentation(
+  payload:
+    | {
+        prompt: string;
+      }
+    | { updatePrompt: string; currentSlide: string },
+): Promise<GeneratedContent> {
   const response = await fetch("/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -32,26 +38,26 @@ export async function generatePresentation(payload: {
   return responseJSON;
 }
 
-export async function createPresentation(
-  client: SupabaseClient<Database>,
-  data: PresentationInsert,
-): Promise<PresentationDraft> {
-  const res = await client
-    .from("Presentation")
-    .upsert([{ ...data }])
-    .select();
+// export async function createPresentation(
+//   client: SupabaseClient<Database>,
+//   data: PresentationInsert,
+// ): Promise<PresentationDraft> {
+//   const res = await client
+//     .from("Presentation")
+//     .upsert([{ ...data }])
+//     .select();
 
-  // Error while creating the presentation
-  if (res.error) {
-    throw new Error(JSON.stringify(res.error));
-  }
+//   // Error while creating the presentation
+//   if (res.error) {
+//     throw new Error(JSON.stringify(res.error));
+//   }
 
-  if (!res.data) {
-    throw new Error("NOT_FOUND");
-  }
+//   if (!res.data) {
+//     throw new Error("NOT_FOUND");
+//   }
 
-  return res.data[0];
-}
+//   return res.data[0];
+// }
 
 export async function getRecentPresentations(
   client: SupabaseClient<Database>,
@@ -84,7 +90,7 @@ export async function getPresentation(
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .select("id, document, created_by, updated_at ,prompt, theme, response")
+    .select("id, created_by, updated_at ,prompt")
     .eq("id", data.presentationId)
     .eq("created_by", data.userId);
 
@@ -109,17 +115,78 @@ export async function upsertPresentation(
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .upsert({...data.updates})
+    .upsert({ ...data.updates })
     .eq("id", data.presentationId)
     .eq("created_by", data.userId)
-    .select("id, document, created_by, updated_at ,prompt, theme, response");
+    .select("id, created_by, updated_at ,prompt, theme")
+    .single();
 
-  if (resData === null || resData.length === 0) {
+  if (resData === null) {
     console.log("No presentation found");
     return null;
   }
 
   if (error) throw new Error("Error while updating presentation");
 
-  return resData[0] as PresentationRow;
+  return resData;
 }
+
+export async function upsertDocument(
+  client: SupabaseClient<Database>,
+  data: {
+    presentationId: string;
+    document: DocumentInsert;
+  },
+) {
+  const { data: resData, error } = await client
+    .from("Documents")
+    .upsert({
+      ...data.document,
+    })
+    .eq("belongs_to", data.presentationId)
+    .select("*")
+    .single();
+
+  if (resData === null) {
+    console.log("No document found");
+    return null;
+  }
+
+  if (error) throw new Error("Error while creating the document");
+
+  return resData;
+}
+
+export async function upsertChat(
+  client: SupabaseClient<Database>,
+  data: {
+    presentationId: string;
+    chat: ChatInsert;
+  },
+) {
+  const { data: resData, error } = await client
+    .from("Chat")
+    .upsert({
+      ...data.chat,
+    })
+    .eq("presentation", data.presentationId)
+    .select("*")
+    .single();
+
+  if (resData === null) {
+    console.log("No chat found");
+    return null;
+  }
+
+  if (error) throw new Error("Error while creating the document");
+
+  return resData;
+}
+
+export async function saveMessage(
+  client: SupabaseClient<Database>,
+  data: {
+    chatId: string;
+    sentBy: string;
+  },
+) {}
