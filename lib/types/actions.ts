@@ -19,3 +19,7 @@ export type SignInFormState = {
   email: Field;
   password: Field;
 };
+
+export type PromptFormState = {
+  message: Field;
+};
