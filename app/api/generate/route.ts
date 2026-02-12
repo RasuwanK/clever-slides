@@ -1,14 +1,32 @@
 import { groq } from "@/lib/groq";
-import { buildPresentationPrompt } from "@/lib/prompt";
+import { buildPresentationPrompt, buildUpdatePrompt } from "@/lib/prompt";
+import { GenerateRequest, GenerateUpdateRequest } from "@/lib/schema";
 
 export async function POST(req: Request) {
   // TODO: Implement auth in routes
 
   const body = await req.json();
 
-  const messages = buildPresentationPrompt({
-    prompt: body.prompt,
-  });
+  const generateParsed = GenerateRequest.safeParse(body);
+  const updateParsed = GenerateUpdateRequest.safeParse(body);
+
+  let messages;
+
+  if (generateParsed.success) {
+    messages = buildPresentationPrompt({
+      prompt: generateParsed.data.prompt,
+    });
+  } else if (updateParsed.success) {
+    messages = buildUpdatePrompt({
+      updatePrompt: updateParsed.data.updatePrompt,
+      currentSlide: updateParsed.data.currentSlide,
+    });
+  } else {
+    return new Response(null, {
+      status: 400,
+      statusText: "Bad request: no or wrong input prompt is provided",
+    });
+  }
 
   let completion;
 
@@ -19,8 +37,8 @@ export async function POST(req: Request) {
       temperature: 0.3,
       stream: false,
     });
-  } catch (error:any) {
-    console.log('GROQ ERROR ! =>', error);
+  } catch (error: any) {
+    console.log("GROQ ERROR ! =>", error);
     if (error?.code === 429) {
       return new Response(null, {
         status: 500,
