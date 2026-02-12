@@ -7,10 +7,15 @@ export type PresentationInsert =
 export type PresentationUpdate =
   Database["public"]["Tables"]["Presentation"]["Update"];
 
+export type DocumentInsert =
+  Database["public"]["Tables"]["Documents"]["Insert"];
+
 export type PresentationDraft = Pick<
   Database["public"]["Tables"]["Presentation"]["Row"],
-  "id" | "created_at" | "document" | "prompt"
+  "id" | "created_at"
 >;
+
+export type ChatInsert = Database["public"]["Tables"]["Chat"]["Insert"];
 
 export interface User {
   id?: string;
@@ -27,6 +32,7 @@ export type GeneratedContent = {
   };
   slides: [
     {
+      id: string;
       layout:
         | "title_center"
         | "title_left_bullets_right"
