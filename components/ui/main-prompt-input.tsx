@@ -1,16 +1,17 @@
 "use client";
 
 import { Button } from "./button";
-import { Textarea } from "./textarea";
 import { cn } from "@/lib/utils/tailwind";
 import { GearSixIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react";
 import { Input } from "./input";
 import { PromptSchema } from "@/lib/schema";
 import { usePromptFormStore } from "@/stores/prompt-store";
 import { useRouter } from "next/navigation";
-import { useDraftStore } from "@/stores/draft-store";
 import { Field } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupTextarea } from "./input-group";
+import { usePresentation } from "@/hooks/use-presentation";
+import { useDocument } from "@/hooks/use-document";
+import { useChat } from "@/hooks/use-chat";
 
 interface GenerateInputProps {
   userId?: string;
@@ -24,12 +25,19 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
   const errors = usePromptFormStore((state) => state.errors);
   const setError = usePromptFormStore((state) => state.setError);
 
-  const setDraft = useDraftStore((s) => s.setDraft);
+  // Provided an empty presentation
+  const presentation = usePresentation({});
+
+  // Provided an empty document
+  const document = useDocument({});
+
+  // Provided an empty chat
+  const chat = useChat({});
 
   return (
     <form
       className={cn("flex-col gap-5")}
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
 
         const parsed = PromptSchema.safeParse({
@@ -39,13 +47,13 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
         });
 
         if (!parsed.success) {
-          console.log(formState);
-          console.error("Presentation couldn't generate due to invalid fields");
           return;
         }
 
         // No generation for un authenticated users
-        const draftId = crypto.randomUUID();
+        const presentationId = crypto.randomUUID();
+        const documentId = crypto.randomUUID();
+        const chatId = crypto.randomUUID();
 
         if (!userId) {
           // Save the prompt and redirect to sign in page
@@ -53,20 +61,28 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
           return;
         }
 
-        // Save draft locally
-        setDraft({
-          id: draftId,
-          prompt: parsed.data.prompt,
-          created_at: new Date().toISOString(),
-          updated_at: null,
-          is_deleted: false,
-          status: "draft",
+        // Create a presentation
+        await presentation.upsert({
+          id: presentationId,
           created_by: userId,
-          theme: null,
+        });
+
+        // Create a document
+        await document.upsert({
+          id: documentId,
+          belongs_to: presentationId,
+          version: 0.1,
+        });
+
+        // Create a chat
+        await chat.upsert({
+          id: chatId,
+          main_prompt: parsed.data.prompt,
+          belongs_to: presentationId,
         });
 
         // Redirect to regenerate
-        router.push("/editor/" + draftId);
+        router.push("/editor/" + presentationId);
       }}
     >
       <InputGroup>
