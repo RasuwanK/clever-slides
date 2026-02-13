@@ -55,27 +55,27 @@ export type Database = {
       }
       Chat: {
         Row: {
+          belongs_to: string | null
           created_at: string
           id: string
           main_prompt: string
-          presentation: string | null
         }
         Insert: {
+          belongs_to?: string | null
           created_at?: string
           id: string
           main_prompt: string
-          presentation?: string | null
         }
         Update: {
+          belongs_to?: string | null
           created_at?: string
           id?: string
           main_prompt?: string
-          presentation?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "Chat_presentation_fkey"
-            columns: ["presentation"]
+            foreignKeyName: "Chat_belongs_to_fkey"
+            columns: ["belongs_to"]
             isOneToOne: false
             referencedRelation: "Presentation"
             referencedColumns: ["id"]
@@ -172,9 +172,7 @@ export type Database = {
           created_by: string | null
           id: string
           is_deleted: boolean
-          prompt: string | null
           status: Database["public"]["Enums"]["status"]
-          theme: Json | null
           updated_at: string | null
         }
         Insert: {
@@ -182,9 +180,7 @@ export type Database = {
           created_by?: string | null
           id: string
           is_deleted?: boolean
-          prompt?: string | null
           status?: Database["public"]["Enums"]["status"]
-          theme?: Json | null
           updated_at?: string | null
         }
         Update: {
@@ -192,9 +188,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_deleted?: boolean
-          prompt?: string | null
           status?: Database["public"]["Enums"]["status"]
-          theme?: Json | null
           updated_at?: string | null
         }
         Relationships: [
