@@ -10,6 +10,8 @@ import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 import { Titlebar } from "@/app/editor/[slideId]/titlebar";
 import { AIChat } from "./ai-chat";
 import { GeneratedContent } from "@/lib/types/utils";
+import { useDocument } from "@/hooks/use-document";
+import { useChat } from "@/hooks/use-chat";
 
 interface EditorProps {
   presentationId: string;
@@ -21,13 +23,13 @@ export default function Editor({ presentationId, user }: EditorProps) {
   const router = useRouter();
 
   // State of the database saved presentation
-  const {
-    data: presentation, // Local or fetched presentation
-    upsert: upsertPresentation,
-    isLoading: isPresentationLoading,
-    isUpdating: isPresentationUpdating, // When saving is in progress
-    error: presentationError,
-  } = usePresentation({ presentationId, userId: user.id! });
+  const presentation = usePresentation({ presentationId, userId: user.id! });
+
+  // State of the database saved document
+  const document = useDocument({});
+
+  // State of the database saved chat
+  const { chat, messages } = useChat({});
 
   // Config of the canvas
   //const canvasConfig = useEditorStore((state) => state.canvasConfig);
@@ -40,47 +42,24 @@ export default function Editor({ presentationId, user }: EditorProps) {
   // Mutation to generate presentation
   const generateMutation = useGeneratePresentation({
     saveFn: (data) => {
-      // Update on generated
-      if (presentation) {
-        upsertPresentation({
-          ...presentation,
-          created_by: user.id!,
-        });
+      if (!chat.data) {
+        throw new Error("No chat has created");
       }
+
+      const messageId = crypto.randomUUID();
+
+      messages.upsert({
+        id: messageId,
+        chat: chat.data.id,
+        message: data,
+        role: "agent",
+        sent_by: user.id,
+      });
     },
   });
 
   // To get reference to the canvas parent
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-
-  // To generate a new presentation if none exists
-  useEffect(() => {
-    // Skipping for loading state, error, or suceess (any settled state)
-    // IMPORTANT: Removing this will cause infinite loop
-    if (
-      isPresentationLoading ||
-      presentationError ||
-      generateMutation.isPending ||
-      generateMutation.isError ||
-      generateMutation.isSuccess
-    ) {
-      return;
-    }
-
-    // Start generating the presentation
-    generateMutation.mutate({
-      prompt: presentation.prompt,
-    });
-  }, [
-    presentation,
-    router,
-    generateMutation,
-    generateMutation.isPending,
-    generateMutation.isError,
-    isPresentationLoading,
-    presentationError,
-    isLocal,
-  ]);
 
   // useEffect(() => {
   //   // To resize the canvas

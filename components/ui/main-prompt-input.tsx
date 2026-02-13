@@ -33,9 +33,28 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
   const document = useDocument({});
 
   // Provided an empty chat
-  const chat = useChat({});
+  const { chat, messages } = useChat({});
 
   // Provided an empty messages
+
+  // Mutation to generate presentation
+  const generateMutation = useGeneratePresentation({
+    saveFn: (data) => {
+      if (!chat.data) {
+        throw new Error("No chat has created");
+      }
+
+      const messageId = crypto.randomUUID();
+
+      messages.upsert({
+        id: messageId,
+        chat: chat.data.id,
+        message: data,
+        role: "agent",
+        sent_by: userId,
+      });
+    },
+  });
 
   return (
     <form
@@ -78,7 +97,7 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
         });
 
         // Create a chat
-        await chat.chat.upsert({
+        await chat.upsert({
           id: chatId,
           main_prompt: parsed.data.prompt,
           belongs_to: presentationId,
