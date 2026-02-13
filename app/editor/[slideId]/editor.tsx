@@ -25,7 +25,6 @@ export default function Editor({ presentationId, user }: EditorProps) {
     data: presentation, // Local or fetched presentation
     upsert: upsertPresentation,
     isLoading: isPresentationLoading,
-    isLocal, // If using local draft
     isUpdating: isPresentationUpdating, // When saving is in progress
     error: presentationError,
   } = usePresentation({ presentationId, userId: user.id! });
@@ -68,18 +67,10 @@ export default function Editor({ presentationId, user }: EditorProps) {
       return;
     }
 
-    // If no presentation exists in DB, but there's a local draft, generate from prompt
-    if (isLocal && presentation !== null) {
-      if (!presentation.prompt) {
-        // TODO: Fix this by opening a modal to enter prompt
-        return router.push("/404");
-      }
-
-      // Start generating the presentation
-      generateMutation.mutate({
-        prompt: presentation.prompt,
-      });
-    }
+    // Start generating the presentation
+    generateMutation.mutate({
+      prompt: presentation.prompt,
+    });
   }, [
     presentation,
     router,

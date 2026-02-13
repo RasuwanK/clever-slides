@@ -12,6 +12,7 @@ import { InputGroup, InputGroupAddon, InputGroupTextarea } from "./input-group";
 import { usePresentation } from "@/hooks/use-presentation";
 import { useDocument } from "@/hooks/use-document";
 import { useChat } from "@/hooks/use-chat";
+import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 
 interface GenerateInputProps {
   userId?: string;
@@ -33,6 +34,13 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
 
   // Provided an empty chat
   const chat = useChat({});
+
+  // Provided an empty messages
+
+  // Mutation to generate presentation
+  const generateMutation = useGeneratePresentation({
+    saveFn: (data) => {},
+  });
 
   return (
     <form
@@ -75,10 +83,15 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
         });
 
         // Create a chat
-        await chat.upsert({
+        await chat.chat.upsert({
           id: chatId,
           main_prompt: parsed.data.prompt,
           belongs_to: presentationId,
+        });
+
+        // Generate the presentation
+        await generateMutation.mutateAsync({
+          prompt: parsed.data.prompt,
         });
 
         // Redirect to regenerate
