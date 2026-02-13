@@ -37,11 +37,6 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
 
   // Provided an empty messages
 
-  // Mutation to generate presentation
-  const generateMutation = useGeneratePresentation({
-    saveFn: (data) => {},
-  });
-
   return (
     <form
       className={cn("flex-col gap-5")}
