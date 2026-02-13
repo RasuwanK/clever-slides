@@ -7,6 +7,7 @@ import type {
   PresentationInsert,
   PresentationRow,
   ChatInsert,
+  MessageInsert,
 } from "@/lib/types/utils";
 
 export async function generatePresentation(
@@ -90,35 +91,27 @@ export async function getPresentation(
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .select("id, created_by, updated_at ,prompt")
+    .select("id, created_by, updated_at")
     .eq("id", data.presentationId)
-    .eq("created_by", data.userId);
+    .eq("created_by", data.userId)
+    .single();
 
   if (error) throw new Error("Error while getting presentation");
 
-  if (resData.length === 0) {
-    console.log("No presentation found");
-    return null;
-  }
-
   // Now 'content' is strictly typed as 'Content'
-  return resData[0] as PresentationRow;
+  return resData;
 }
 
 export async function upsertPresentation(
   client: SupabaseClient<Database>,
   data: {
-    presentationId: string;
-    userId: string;
     updates: PresentationInsert;
   },
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
     .upsert({ ...data.updates })
-    .eq("id", data.presentationId)
-    .eq("created_by", data.userId)
-    .select("id, created_by, updated_at ,prompt, theme")
+    .select("id, created_by, updated_at")
     .single();
 
   if (resData === null) {
@@ -134,7 +127,6 @@ export async function upsertPresentation(
 export async function upsertDocument(
   client: SupabaseClient<Database>,
   data: {
-    presentationId: string;
     document: DocumentInsert;
   },
 ) {
@@ -143,8 +135,29 @@ export async function upsertDocument(
     .upsert({
       ...data.document,
     })
-    .eq("belongs_to", data.presentationId)
     .select("*")
+    .single();
+
+  if (resData === null) {
+    console.log("No document found");
+    return null;
+  }
+
+  if (error) throw new Error("Error while creating the document");
+
+  return resData;
+}
+
+export async function getDocument(
+  client: SupabaseClient<Database>,
+  data: {
+    presentationId: string;
+  },
+) {
+  const { data: resData, error } = await client
+    .from("Documents")
+    .select("*")
+    .eq("belongs_to", data.presentationId)
     .single();
 
   if (resData === null) {
@@ -160,7 +173,6 @@ export async function upsertDocument(
 export async function upsertChat(
   client: SupabaseClient<Database>,
   data: {
-    presentationId: string;
     chat: ChatInsert;
   },
 ) {
@@ -169,8 +181,51 @@ export async function upsertChat(
     .upsert({
       ...data.chat,
     })
-    .eq("presentation", data.presentationId)
     .select("*")
+    .single();
+
+  if (resData === null) {
+    console.log("No chat found");
+    return null;
+  }
+
+  if (error) throw new Error("Error while creating the document");
+
+  return resData;
+}
+
+export async function getChat(
+  client: SupabaseClient<Database>,
+  data: {
+    presentationId: string;
+  },
+) {
+  const { data: resData, error } = await client
+    .from("Chat")
+    .select("id, belongs_to, main_prompt, created_at, messages ( * )")
+    .eq("belongs_to", data.presentationId)
+    .single();
+
+  if (resData === null) {
+    console.log("No chat found");
+    return null;
+  }
+
+  if (error) throw new Error("Error while creating the document");
+
+  return resData;
+}
+
+export async function getMessages(
+  client: SupabaseClient<Database>,
+  data: {
+    chatId: string;
+  },
+) {
+  const { data: resData, error } = await client
+    .from("Messages")
+    .select("*")
+    .eq("chat", data.chatId)
     .single();
 
   if (resData === null) {
@@ -187,6 +242,26 @@ export async function saveMessage(
   client: SupabaseClient<Database>,
   data: {
     chatId: string;
-    sentBy: string;
+    message: MessageInsert;
   },
-) {}
+) {
+  const { data: resData, error } = await client
+    .from("Messages")
+    .upsert({
+      ...data.message,
+    })
+    .eq("chat", data.chatId)
+    .select("*")
+    .single();
+
+  if (resData === null) {
+    console.log("No chat found");
+    return null;
+  }
+
+  if (error) throw new Error("Error while creating the document");
+
+  return resData;
+}
+
+export async function initPresentation() {}
