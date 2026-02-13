@@ -4,11 +4,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getPresentation, upsertPresentation } from "@/lib/utils/db";
 import type { PresentationInsert } from "@/lib/types/utils";
-import { useDraftStore } from "@/stores/draft-store";
 
 interface UsePresentationProps {
-  presentationId: string;
-  userId: string;
+  presentationId?: string;
+  userId?: string;
 }
 
 export function usePresentation({
@@ -21,6 +20,11 @@ export function usePresentation({
   const { data, isLoading, error } = useQuery({
     queryKey: ["presentation", presentationId, userId],
     queryFn: async () => {
+      // No ids provided nothing is fetched
+      if (!presentationId || !userId) {
+        return null;
+      }
+
       const supabase = createClient();
       return getPresentation(supabase, {
         presentationId,
@@ -31,22 +35,12 @@ export function usePresentation({
     staleTime: 60_000,
   });
 
-  // When the presentation is null used the saved draft
-  const draft = useDraftStore((state) => state.draft);
-  const setDraft = useDraftStore((state) => state.setDraft);
-
   // Mutation to update presentation
   const updateMutation = useMutation({
-    mutationKey: ["presentation", "update", presentationId, userId],
+    mutationKey: ["presentation", "update", userId],
     mutationFn: async (updates: PresentationInsert) => {
-      if (!presentationId || !userId) {
-        throw new Error("MISSING_IDS");
-      }
-
       const supabase = createClient();
       return upsertPresentation(supabase, {
-        presentationId,
-        userId,
         updates,
       });
     },
@@ -55,14 +49,11 @@ export function usePresentation({
         ["presentation", presentationId, userId],
         updated,
       );
-
-      setDraft(null);
     },
   });
 
   return {
-    data: data ?? draft,
-    isLocal: data === null && draft !== null,
+    data: data,
     isLoading,
     error,
     upsert: updateMutation.mutateAsync,
