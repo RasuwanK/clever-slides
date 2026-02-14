@@ -16,8 +16,8 @@ export function useGeneratePresentation({
     onSuccess: (data) => {
       saveFn(data);
     },
-    onError: () => {
-      console.error("Error while generating presentation");
+    onError: (error) => {
+      console.error("Error while generating presentation ", error);
     },
   });
 }
