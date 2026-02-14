@@ -3,17 +3,11 @@ import { DocumentInsert } from "@/lib/types/utils";
 import { createClient } from "@/lib/supabase/client";
 import { upsertDocument } from "@/lib/utils/db";
 
-export interface UseDocumentMutationProps {
-  presentationId: string;
-}
-
-export function useDocumentMutation({
-  presentationId,
-}: UseDocumentMutationProps) {
+export function useDocumentMutation() {
   const queryClient = useQueryClient();
 
   const { isPending, error, mutate, mutateAsync } = useMutation({
-    mutationKey: ["document", "update", presentationId],
+    mutationKey: ["document", "update"],
     mutationFn: async (document: DocumentInsert) => {
       const supabase = createClient();
       return upsertDocument(supabase, {
@@ -21,7 +15,7 @@ export function useDocumentMutation({
       });
     },
     onSuccess: (updated) => {
-      queryClient.setQueryData(["document", presentationId], updated);
+      queryClient.setQueryData(["document", "update"], updated);
     },
   });
 

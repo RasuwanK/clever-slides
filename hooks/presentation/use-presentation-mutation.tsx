@@ -3,17 +3,12 @@ import { PresentationInsert } from "@/lib/types/utils";
 import { createClient } from "@/lib/supabase/client";
 import { upsertPresentation } from "@/lib/utils/db";
 
-export interface UsePresentationMutationProps {
-  userId: string;
-}
 
-export function usePresentationMutation({
-  userId,
-}: UsePresentationMutationProps) {
+export function usePresentationMutation() {
   const queryClient = useQueryClient();
 
   const { isPending, error, mutate, mutateAsync } = useMutation({
-    mutationKey: ["presentation", "update", userId],
+    mutationKey: ["presentation", "update"],
     mutationFn: async (updates: PresentationInsert) => {
       const supabase = createClient();
 
@@ -22,7 +17,7 @@ export function usePresentationMutation({
       });
     },
     onSuccess: (updated) => {
-      queryClient.setQueryData(["presentation", userId], updated);
+      queryClient.setQueryData(["presentation", "update"], updated);
     },
   });
 

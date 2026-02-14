@@ -3,15 +3,11 @@ import { ChatInsert } from "@/lib/types/utils";
 import { createClient } from "@/lib/supabase/client";
 import { upsertChat } from "@/lib/utils/db";
 
-export interface UseChatMutationProps {
-  presentationId: string;
-}
-
-export function useChatMutation({ presentationId }: UseChatMutationProps) {
+export function useChatMutation() {
   const queryClient = useQueryClient();
 
   const { isPending, error, mutate, mutateAsync } = useMutation({
-    mutationKey: ["chat", "update", presentationId],
+    mutationKey: ["chat", "update"],
     mutationFn: async (chat: ChatInsert) => {
       const supabase = createClient();
       return upsertChat(supabase, {
@@ -19,7 +15,7 @@ export function useChatMutation({ presentationId }: UseChatMutationProps) {
       });
     },
     onSuccess: (updated) => {
-      queryClient.setQueryData(["chat", presentationId], updated);
+      queryClient.setQueryData(["chat", "update"], updated);
     },
   });
 
