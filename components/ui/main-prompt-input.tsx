@@ -12,6 +12,7 @@ import { InputGroup, InputGroupAddon, InputGroupTextarea } from "./input-group";
 import { useDocumentMutation } from "@/hooks/document/use-document-mutation";
 import { usePresentationMutation } from "@/hooks/presentation/use-presentation-mutation";
 import { useChatMutation } from "@/hooks/chat/use-chat-mutation";
+import { useMessageMutation } from "@/hooks/messages/use-messages-mutation";
 import { FormEventHandler } from "react";
 import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 
@@ -30,13 +31,8 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
   // Provided mutation to presentations
   const presentation = usePresentationMutation();
 
-  // Provided mutation to documents
-  const document = useDocumentMutation();
-
   // Provided mutations to chat
   const chat = useChatMutation();
-
-  const generateMutation = useGeneratePresentation();
 
   const onPromptSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -53,7 +49,6 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
 
     // No generation for un authenticated users
     const presentationId = crypto.randomUUID();
-    const documentId = crypto.randomUUID();
     const chatId = crypto.randomUUID();
 
     if (!userId) {
@@ -62,26 +57,14 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
       return;
     }
 
-    // Generate the presentation
-    const generated = await generateMutation.mutateAsync({
-      prompt: parsed.data.prompt,
-    });
-
     // Create a presentation
-    const newPresentation = await presentation.mutateAsync({
+    await presentation.mutateAsync({
       id: presentationId,
       created_by: userId,
     });
 
-    // Create a document
-    const newDocument = await document.mutateAsync({
-      id: documentId,
-      belongs_to: presentationId,
-      version: 0.1,
-    });
-
     // Create a chat
-    const newChat = await chat.mutateAsync({
+    await chat.mutateAsync({
       id: chatId,
       main_prompt: parsed.data.prompt,
       belongs_to: presentationId,
