@@ -9,12 +9,9 @@ import { usePromptFormStore } from "@/stores/prompt-store";
 import { useRouter } from "next/navigation";
 import { Field } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupTextarea } from "./input-group";
-import { useDocumentMutation } from "@/hooks/document/use-document-mutation";
 import { usePresentationMutation } from "@/hooks/presentation/use-presentation-mutation";
 import { useChatMutation } from "@/hooks/chat/use-chat-mutation";
-import { useMessageMutation } from "@/hooks/messages/use-messages-mutation";
 import { FormEventHandler } from "react";
-import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 
 interface GenerateInputProps {
   userId?: string;
