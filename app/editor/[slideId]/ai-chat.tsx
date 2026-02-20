@@ -34,6 +34,9 @@ import { useChatFormStore } from "@/stores/chat-store";
 import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 import { useChatQuery } from "@/hooks/chat/use-chat-query";
 import { useChatMutation } from "@/hooks/chat/use-chat-mutation";
+import { useEffect, useRef } from "react";
+import { MessageSchema } from "@/lib/schema";
+import { useMessageMutation } from "@/hooks/messages/use-messages-mutation";
 
 interface AIChatProps {
   presentationId: string;
@@ -41,17 +44,39 @@ interface AIChatProps {
 }
 
 export function AIChat({ userId, presentationId }: AIChatProps) {
+  // message form
+  const messageFormRef = useRef<HTMLFormElement>(null);
+
   // State of the database saved chat
   const chatQuery = useChatQuery({ presentationId });
 
   // Functions to modify a given chat
   const chatMutation = useChatMutation();
 
+  // Functions to send messages
+  const messageMutation = useMessageMutation();
+
   const chatFormState = useChatFormStore((state) => state.formState);
   const setField = useChatFormStore((state) => state.setField);
 
   // Mutation to generate presentation
   const generateMutation = useGeneratePresentation();
+
+  useEffect(() => {
+    if (!chatQuery.isLoading && chatQuery.data?.messages.length === 0) {
+      if (!messageFormRef.current) {
+        return;
+      }
+
+      const messageForm = messageFormRef.current;
+
+      // Automatically submit the form intially if no messages are present in the chat, to generate the initial content
+      setField("prompt", chatQuery.data.main_prompt);
+      messageForm.dispatchEvent(
+        new Event("submit", { cancelable: true, bubbles: true }),
+      );
+    }
+  }, [chatQuery.data?.messages.length, chatQuery.isLoading]);
 
   return (
     <Card
@@ -66,76 +91,63 @@ export function AIChat({ userId, presentationId }: AIChatProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 px-1 h-full overflow-y-scroll">
-        {chatQuery.data?.main_prompt && (
-          <CardDescription className="text-xs py-2">
-            <span className="font-bold">Prompt: </span>
-            {chatQuery.data?.main_prompt}
-          </CardDescription>
+        {chatQuery.isLoading ? (
+          <p>Loading</p>
+        ) : !chatQuery.data ? (
+          <p> Not chat found </p>
+        ) : (
+          chatQuery.data.messages.map((message, index) => (
+            <p key={index}>{JSON.stringify(message)}</p>
+          ))
         )}
-        <p className="text-gray-400">
-          {chatQuery.isLoading ? "Generating slides" : "Generated slides"}
-        </p>
-        <div id="generated-slides" className="flex flex-col gap-4">
-          {chatQuery.isLoading === true ? (
-            [1, 2, 3, 4, 5].map((fakeSlide, slideIndex) => (
-              <Card key={slideIndex}>
-                <CardHeader>
-                  <CardTitle>
-                    <Skeleton className="h-4 w-full" />
-                  </CardTitle>
-                  <CardDescription>
-                    <Skeleton className="h-2 w-[80%]" />
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="list-disc">
-                    {[1, 2, 3, 4, 5, 6].map((bullet, bulletIndex) => (
-                      <li key={bulletIndex}>
-                        <Skeleton className="h-2 w-[80%]" />
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Skeleton className="h-6 w-full" />
-                </CardFooter>
-              </Card>
-            ))
-          ) : (!chatQuery.data || !chatQuery.data.messages)  ? (
-            <p>No chat</p>
-          ) : (
-            chatQuery.data.messages.map(({message, sent_by}, messageIndex) => {
-              const {slides} = message as GeneratedContent;
-              return <Card key={messageIndex} className="text-xs">
-                <CardHeader>
-                  <CardTitle>Message Title</CardTitle>
-                  <CardDescription className="text-xs">
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="text-xs">
-                  
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    onClick={() => {
-                      setField("currentSlide",'da');
-                    }}
-                    className="w-full text-xs"
-                  >
-                    <PaperclipIcon />
-                  </Button>
-                </CardFooter>
-              </Card>
-            }
-            ))
-          }
-        </div>
       </CardContent>
       <CardFooter className="px-0">
         <div id="message-box" className="flex w-full flex-col mt-4">
           <form
-            onSubmit={(e) => {
+            ref={messageFormRef}
+            onSubmit={async (e) => {
               e.preventDefault();
+
+              if(!chatQuery.data || !chatQuery.data.id) {
+                throw new Error("No chat has created for this presentation");
+              }
+
+              const parsedMessage = MessageSchema.safeParse({
+                prompt: chatFormState.prompt.value,
+              });
+
+              if (!parsedMessage.success) {
+                console.error("Invalid message prompt", parsedMessage.error);
+                return;
+              }
+
+              // Save the users message
+              await messageMutation.mutateAsync({
+                message: {
+                  id: crypto.randomUUID(),
+                  chat: chatQuery.data.id,
+                  role: "user",
+                  related_user: userId,
+                  content: parsedMessage.data.prompt,
+                }
+              });
+
+              // Generate the presentation based on the user message
+              const generated = await generateMutation.mutateAsync({
+                prompt: parsedMessage.data.prompt,
+              });
+
+              // Saving the AI response to the database
+              await messageMutation.mutateAsync({
+                message: {
+                  id: crypto.randomUUID(),
+                  chat: chatQuery.data.id,
+                  role: "assistant",
+                  related_user: userId,
+                  content: generated,
+                }
+              });
+
             }}
           >
             <InputGroup className="w-full text-xs">
@@ -143,6 +155,7 @@ export function AIChat({ userId, presentationId }: AIChatProps) {
                 onChange={(e) => {
                   setField("prompt", e.target.value);
                 }}
+                value={chatFormState.prompt.value}
                 className="text-xs"
                 placeholder="Enter the your prompt to modify and adjust the content"
               />
