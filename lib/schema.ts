@@ -55,6 +55,10 @@ export const GenerateRequest = z.object({
   prompt: z.string(),
 });
 
+export const MessageSchema = z.object({
+  prompt: z.string(),
+})
+
 export const GenerateUpdateRequest = z.object({
   updatePrompt: z.string(),
   currentSlide: z.string(),
