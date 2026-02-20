@@ -206,7 +206,7 @@ export async function getChat(
     .select("*")
     .eq("chat", chat.id)
     .order("created_at", {
-      ascending: false,
+      ascending: true,
     });
 
   if (messagesError) {
@@ -215,24 +215,22 @@ export async function getChat(
 
   return {
     ...chat,
-    messages,
+    messages: messages === null ? [] : messages,
   };
 }
 
 export async function saveMessage(
   client: SupabaseClient<Database>,
   data: {
-    chatId: string;
     message: MessageInsert;
   },
 ) {
   const { data: resData, error } = await client
     .from("Messages")
     .upsert({
-      ...data.message,
+      ...data.message
     })
-    .eq("chat", data.chatId)
-    .select("*")
+        .select("*")
     .maybeSingle();
 
   if (error) return null;
