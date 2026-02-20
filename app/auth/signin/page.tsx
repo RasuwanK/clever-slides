@@ -10,7 +10,10 @@ export default async function LoginPage() {
       <LoginForm />
       <p className="mt-4">
         Don't have an account?{" "}
-        <Link href="/auth/signup" className="text-primary font-bold">
+        <Link
+          href="/auth/signup"
+          className="text-foreground font-bold hover:text-primary transition-colors"
+        >
           sign up
         </Link>
       </p>

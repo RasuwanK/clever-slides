@@ -6,7 +6,7 @@ export default function EditorLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="flex flex-row w-full">
+    <main className="flex flex-col w-full">
       <SidebarProvider open={false}>
         <Sidebar collapsible="offcanvas" />
         {children}

@@ -32,7 +32,7 @@ export function SignUpForm() {
         <FieldLegend className="font-bold mb-6">
           Create your account
         </FieldLegend>
-        <FieldDescription className="text-primary h-2 mb-4">
+        <FieldDescription className="text-foreground h-2 mb-4">
           {state.message}
         </FieldDescription>
         <FieldGroup>

@@ -45,38 +45,37 @@
 
 :root {
   /* Custom colors */
-  --green: #018790;
+  --orange: oklch(64.6% 0.222 41.116);
+  --orange-opaque: oklch(64.6% 0.222 41.116 / 0.35);
   --black: black;
   --white: white;
-  --grey: rgb(72, 72, 72);
-
-  --green-opaque: #01879072;
+  --grey: oklch(55% 0.01 250);
 
   --radius: 0.625rem;
-  --background: 0 0% 0%;
-  --foreground: 0 0% 98%;
+  --background: oklch(99% 0.004 70);
+  --foreground: oklch(23% 0.01 40);
 
-  --card: var(--black);
-  --card-foreground: var(--white);
+  --card: oklch(100% 0 0);
+  --card-foreground: var(--foreground);
 
-  --popover: var(--black);
-  --popover-foreground: var(--white);
+  --popover: oklch(100% 0 0);
+  --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --primary: oklch(64.6% 0.222 41.116);
+  --primary-foreground: oklch(100% 0 0);
+  --secondary: oklch(97% 0.02 60);
+  --secondary-foreground: oklch(35% 0.02 45);
+  --muted: oklch(96% 0.01 70);
+  --muted-foreground: oklch(48% 0.012 250);
 
-  --accent: #01879060; /* Dark Grey for hover states */
-  --accent-foreground: rgb(255, 255, 255); /* Text color on hover */
+  --accent: oklch(95% 0.02 58);
+  --accent-foreground: var(--foreground);
 
   --destructive: oklch(0.577 0.245 27.325);
 
-  --border: var(--green-opaque);
-  --input: var(--green);
-  --ring: var(--green-opaque);
+  --border: oklch(89% 0.05 55);
+  --input: var(--orange-opaque);
+  --ring: var(--orange);
 
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -94,14 +93,14 @@
 }
 
 .dark {
-  --background: oklch(0, 0 0);
+  --background: oklch(0 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: oklch(64.6% 0.222 41.116);
+  --primary-foreground: oklch(100% 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -126,12 +125,6 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 
-  /* Custom colors */
-  --green: #018790;
-}
-
-@theme inline {
-  --color-primary: var(--green);
 }
 
 @layer base {

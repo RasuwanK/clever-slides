@@ -25,7 +25,7 @@ export function Titlebar({ user, title }: TitlebarProps) {
       className="w-full flex flex-row gap-2 row-start-1 row-end-2 sm:row-start-auto sm:row-end-auto items-center"
     >
       <Link href="/">
-        <ArrowLeftIcon size={20} className="text-primary mr-4" weight="bold" />
+        <ArrowLeftIcon size={20} className="text-foreground mr-4" weight="bold" />
       </Link>
       <div id="file-info" className="flex flex-col justify-center">
         <h1 className="text-md sm:text-xl">{title}</h1>

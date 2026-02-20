@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <QueryProvider>
-        <body className={`${inter.variable} ${inter.className} antialiased bg-black text-white bg-radial from-primary/30`}>
+        <body className={`${inter.variable} ${inter.className} antialiased bg-background text-foreground bg-radial from-orange-200 `}>
           {children}
         </body>
       </QueryProvider>

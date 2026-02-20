@@ -9,9 +9,10 @@ import { usePromptFormStore } from "@/stores/prompt-store";
 import { useRouter } from "next/navigation";
 import { Field } from "@/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupTextarea } from "./input-group";
-import { usePresentation } from "@/hooks/use-presentation";
-import { useDocument } from "@/hooks/use-document";
-import { useChat } from "@/hooks/use-chat";
+import { useDocumentMutation } from "@/hooks/document/use-document-mutation";
+import { usePresentationMutation } from "@/hooks/presentation/use-presentation-mutation";
+import { useChatMutation } from "@/hooks/chat/use-chat-mutation";
+import { FormEventHandler } from "react";
 import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
 
 interface GenerateInputProps {
@@ -26,92 +27,78 @@ export function MainPromptInput({ userId }: GenerateInputProps) {
   const errors = usePromptFormStore((state) => state.errors);
   const setError = usePromptFormStore((state) => state.setError);
 
-  // Provided an empty presentation
-  const presentation = usePresentation({});
+  // Provided mutation to presentations
+  const presentation = usePresentationMutation();
 
-  // Provided an empty document
-  const document = useDocument({});
+  // Provided mutation to documents
+  const document = useDocumentMutation();
 
-  // Provided an empty chat
-  const { chat, messages } = useChat({});
+  // Provided mutations to chat
+  const chat = useChatMutation();
 
-  // Provided an empty messages
+  const generateMutation = useGeneratePresentation();
 
-  // Mutation to generate presentation
-  const generateMutation = useGeneratePresentation({
-    saveFn: (data) => {
-      if (!chat.data) {
-        throw new Error("No chat has created");
-      }
+  const onPromptSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
 
-      const messageId = crypto.randomUUID();
+    const parsed = PromptSchema.safeParse({
+      prompt: formState.prompt,
+      width: formState.width,
+      height: formState.height,
+    });
 
-      messages.upsert({
-        id: messageId,
-        chat: chat.data.id,
-        message: data,
-        role: "agent",
-        sent_by: userId,
-      });
-    },
-  });
+    if (!parsed.success) {
+      return;
+    }
+
+    // No generation for un authenticated users
+    const presentationId = crypto.randomUUID();
+    const documentId = crypto.randomUUID();
+    const chatId = crypto.randomUUID();
+
+    if (!userId) {
+      // Save the prompt and redirect to sign in page
+      router.push("/auth/signin");
+      return;
+    }
+
+    // Generate the presentation
+    const generated = await generateMutation.mutateAsync({
+      prompt: parsed.data.prompt,
+    });
+
+    // Create a presentation
+    const newPresentation = await presentation.mutateAsync({
+      id: presentationId,
+      created_by: userId,
+    });
+
+    // Create a document
+    const newDocument = await document.mutateAsync({
+      id: documentId,
+      belongs_to: presentationId,
+      version: 0.1,
+    });
+
+    // Create a chat
+    const newChat = await chat.mutateAsync({
+      id: chatId,
+      main_prompt: parsed.data.prompt,
+      belongs_to: presentationId,
+    });
+
+    // Assign the chat
+    await presentation.mutateAsync({
+       id: presentationId,
+       chat: chatId,
+     });
+
+    // Redirect to regenerate
+    router.push("/editor/" + presentationId);
+  };
 
   return (
-    <form
-      className={cn("flex-col gap-5")}
-      onSubmit={async (e) => {
-        e.preventDefault();
-
-        const parsed = PromptSchema.safeParse({
-          prompt: formState.prompt,
-          width: formState.width,
-          height: formState.height,
-        });
-
-        if (!parsed.success) {
-          return;
-        }
-
-        // No generation for un authenticated users
-        const presentationId = crypto.randomUUID();
-        const documentId = crypto.randomUUID();
-        const chatId = crypto.randomUUID();
-
-        if (!userId) {
-          // Save the prompt and redirect to sign in page
-          router.push("/auth/signin");
-          return;
-        }
-
-        // Create a presentation
-        await presentation.upsert({
-          id: presentationId,
-          created_by: userId,
-        });
-
-        // Create a document
-        await document.upsert({
-          id: documentId,
-          belongs_to: presentationId,
-          version: 0.1,
-        });
-
-        // Create a chat
-        await chat.upsert({
-          id: chatId,
-          main_prompt: parsed.data.prompt,
-          belongs_to: presentationId,
-        });
-
-        // Generate the presentation
-        await generateMutation.mutateAsync({
-          prompt: parsed.data.prompt,
-        });
-
-        // Redirect to regenerate
-        router.push("/editor/" + presentationId);
-      }}
-    >
+    <form className={cn("flex-col gap-5")} onSubmit={onPromptSubmit}>
       <InputGroup>
         <InputGroupTextarea
           rows={5}

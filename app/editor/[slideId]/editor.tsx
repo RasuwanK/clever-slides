@@ -3,15 +3,11 @@
 //import { useEditorStore } from "@/stores/editor-store";
 import { Stage, Layer, Rect } from "react-konva";
 import type { User } from "@/components/ui/auth-status";
-import { usePresentation } from "@/hooks/use-presentation";
 import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useGeneratePresentation } from "@/hooks/use-generate-presentation";
+import { notFound, useRouter } from "next/navigation";
 import { Titlebar } from "@/app/editor/[slideId]/titlebar";
 import { AIChat } from "./ai-chat";
-import { GeneratedContent } from "@/lib/types/utils";
-import { useDocument } from "@/hooks/use-document";
-import { useChat } from "@/hooks/use-chat";
+import { usePresentationQuery } from "@/hooks/presentation/use-presentation-query";
 
 interface EditorProps {
   presentationId: string;
@@ -23,13 +19,20 @@ export default function Editor({ presentationId, user }: EditorProps) {
   const router = useRouter();
 
   // State of the database saved presentation
-  const presentation = usePresentation({ presentationId, userId: user.id! });
+  const presentationQuery = usePresentationQuery({
+    presentationId,
+    userId: user.id,
+  });
+
+  useEffect(() => {
+    if (!presentationQuery.isLoading && !presentationQuery.data) {
+      // If the presentation is not found, redirect to home
+      console.log("Presentation not found, redirecting to home");
+      notFound();
+    }
+  }, [presentationQuery.isLoading, presentationQuery.data, router]);
 
   // State of the database saved document
-  const document = useDocument({});
-
-  // State of the database saved chat
-  const { chat, messages } = useChat({});
 
   // Config of the canvas
   //const canvasConfig = useEditorStore((state) => state.canvasConfig);
@@ -38,25 +41,6 @@ export default function Editor({ presentationId, user }: EditorProps) {
   // Canvas content
   //const content = useEditorStore((state) => state.content);
   //const setContent = useEditorStore((state) => state.setContent);
-
-  // Mutation to generate presentation
-  const generateMutation = useGeneratePresentation({
-    saveFn: (data) => {
-      if (!chat.data) {
-        throw new Error("No chat has created");
-      }
-
-      const messageId = crypto.randomUUID();
-
-      messages.upsert({
-        id: messageId,
-        chat: chat.data.id,
-        message: data,
-        role: "agent",
-        sent_by: user.id,
-      });
-    },
-  });
 
   // To get reference to the canvas parent
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -131,27 +115,12 @@ export default function Editor({ presentationId, user }: EditorProps) {
             ></div>
             <div id="toolbar-container">Toolbar</div>
           </div>
-          <AIChat
-            prompt={presentation?.prompt}
-            isGenerating={
-              isPresentationLoading ||
-              isPresentationUpdating ||
-              generateMutation.isPending
-            }
-            generateFn={({
-              updatePrompt,
-              currentSlide,
-            }: {
-              updatePrompt: string;
-              currentSlide: string;
-            }) => {
-              generateMutation.mutate({
-                updatePrompt,
-                currentSlide,
-              });
-            }}
-            response={presentation?.response as GeneratedContent}
-          />
+          {!presentationQuery.isLoading && presentationQuery.data && (
+            <AIChat
+              userId={user.id}
+              presentationId={presentationQuery.data!.id}
+            />
+          )}
         </div>
       </div>
     </div>

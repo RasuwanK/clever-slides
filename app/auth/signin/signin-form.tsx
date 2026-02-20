@@ -18,7 +18,7 @@ export function LoginForm() {
     <form action={formAction}>
       <FieldSet>
         <FieldLegend className="font-bold mb-6">Sign in to your account</FieldLegend>
-        <FieldDescription className="text-primary h-2 mb-4">
+        <FieldDescription className="text-foreground h-2 mb-4">
           {state.message}
         </FieldDescription>
         <FieldGroup>

@@ -31,7 +31,7 @@ export default async function Home() {
               text="Think. Type. Create."
               className="text-4xl sm:text-6xl text-center font-bold text-primary"
             />
-            <p className="text-sm sm:text-xl text-center">
+            <p className="text-sm sm:text-xl text-center text-foreground">
               Create presentations with a single prompt
             </p>
           </header>

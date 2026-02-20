@@ -48,7 +48,7 @@ export function AccountButton({ user, ...props }: AuthStatusProps) {
       className="rounded-full border-2 h-12 border-primary drop-shadow-2xl cursor-pointer flex flex-row items-center"
       {...props}
     >
-      <ChevronDownIcon className="w-5 h-5 mr-2 text-primary" />
+      <ChevronDownIcon className="w-5 h-5 mr-2 text-foreground" />
       <UserAvatar user={user} />
     </Button>
   ) : (
