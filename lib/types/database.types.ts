@@ -168,6 +168,7 @@ export type Database = {
       }
       Presentation: {
         Row: {
+          chat: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -176,6 +177,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          chat?: string | null
           created_at?: string
           created_by?: string | null
           id: string
@@ -184,6 +186,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          chat?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -192,6 +195,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "Presentation_chat_fkey"
+            columns: ["chat"]
+            isOneToOne: false
+            referencedRelation: "Presentation"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "Presentation_created_by_fkey"
             columns: ["created_by"]

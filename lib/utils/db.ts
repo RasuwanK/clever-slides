@@ -76,7 +76,7 @@ export async function getRecentPresentations(
     .eq("created_by", data.userId);
 
   if (res.error) {
-    throw new Error("Error while getting presentations");
+    return null;
   }
 
   return res.data;
@@ -91,12 +91,17 @@ export async function getPresentation(
 ) {
   const { data: resData, error } = await client
     .from("Presentation")
-    .select("id, created_by, updated_at")
+    .select("*")
     .eq("id", data.presentationId)
     .eq("created_by", data.userId)
-    .single();
+    .maybeSingle();
 
-  if (error) throw new Error("Error while getting presentation");
+  if (error) {
+    return null;
+  }
+  if (resData === null) {
+    return null;
+  }
 
   // Now 'content' is strictly typed as 'Content'
   return resData;
@@ -112,14 +117,10 @@ export async function upsertPresentation(
     .from("Presentation")
     .upsert({ ...data.updates })
     .select("id, created_by, updated_at")
-    .single();
+    .maybeSingle();
 
-  if (resData === null) {
-    console.log("No presentation found");
-    return null;
-  }
-
-  if (error) throw new Error("Error while updating presentation");
+  if (error) return null;
+  if (resData === null) return null;
 
   return resData;
 }
@@ -136,14 +137,10 @@ export async function upsertDocument(
       ...data.document,
     })
     .select("*")
-    .single();
+    .maybeSingle();
 
-  if (resData === null) {
-    console.log("No document found");
-    return null;
-  }
-
-  if (error) throw new Error("Error while creating the document");
+  if (error) return null;
+  if (resData === null) return null;
 
   return resData;
 }
@@ -158,14 +155,10 @@ export async function getDocument(
     .from("Documents")
     .select("*")
     .eq("belongs_to", data.presentationId)
-    .single();
+    .maybeSingle();
 
-  if (resData === null) {
-    console.log("No document found");
-    return null;
-  }
-
-  if (error) throw new Error("Error while creating the document");
+  if (error) return null;
+  if (resData === null) return null;
 
   return resData;
 }
@@ -176,22 +169,18 @@ export async function upsertChat(
     chat: ChatInsert;
   },
 ) {
-  const { data: resData, error } = await client
+  const { data: chat, error } = await client
     .from("Chat")
     .upsert({
       ...data.chat,
     })
     .select("*")
-    .single();
+    .maybeSingle();
 
-  if (resData === null) {
-    console.log("No chat found");
-    return null;
-  }
+  if (error) return null;
+  if (chat === null) return null;
 
-  if (error) throw new Error("Error while creating the document");
-
-  return resData;
+  return chat;
 }
 
 export async function getChat(
@@ -200,42 +189,34 @@ export async function getChat(
     presentationId: string;
   },
 ) {
-  const { data: resData, error } = await client
+  const { data: chat, error: chatError } = await client
     .from("Chat")
-    .select("id, belongs_to, main_prompt, created_at, messages ( * )")
+    .select("id, belongs_to, main_prompt, created_at")
     .eq("belongs_to", data.presentationId)
-    .single();
+    .maybeSingle();
 
-  if (resData === null) {
-    console.log("No chat found");
+  if (chatError) {
+    console.error("No chat found");
     return null;
   }
+  if (chat === null) return null;
 
-  if (error) throw new Error("Error while creating the document");
-
-  return resData;
-}
-
-export async function getMessages(
-  client: SupabaseClient<Database>,
-  data: {
-    chatId: string;
-  },
-) {
-  const { data: resData, error } = await client
+  const { data: messages, error: messagesError } = await client
     .from("Messages")
     .select("*")
-    .eq("chat", data.chatId)
-    .single();
+    .eq("chat", chat.id)
+    .order("created_at", {
+      ascending: false,
+    });
 
-  if (resData === null) {
-    console.log("No chat found");
+  if (messagesError) {
     return null;
   }
 
-  if (error) throw new Error("Error while creating the document");
-
-  return resData;
+  return {
+    ...chat,
+    messages,
+  };
 }
 
 export async function saveMessage(
@@ -252,14 +233,10 @@ export async function saveMessage(
     })
     .eq("chat", data.chatId)
     .select("*")
-    .single();
+    .maybeSingle();
 
-  if (resData === null) {
-    console.log("No chat found");
-    return null;
-  }
-
-  if (error) throw new Error("Error while creating the document");
+  if (error) return null;
+  if (resData === null) return null;
 
   return resData;
 }

@@ -15,8 +15,8 @@ export type PresentationDraft = Pick<
   "id" | "created_at"
 >;
 
-export type ChatInsert = Database["public"]["Tables"]["Chat"]["Insert"];
 export type MessageInsert = Database["public"]["Tables"]["Messages"]["Insert"];
+export type ChatInsert = Database["public"]["Tables"]["Chat"]["Insert"];
 
 export interface User {
   id?: string;
