@@ -117,30 +117,30 @@ export type Database = {
       Messages: {
         Row: {
           chat: string
+          content: Json | null
           created_at: string
           id: string
-          message: Json | null
+          related_user: string
           replying_to: string | null
           role: string | null
-          sent_by: string
         }
         Insert: {
           chat: string
+          content?: Json | null
           created_at?: string
           id: string
-          message?: Json | null
+          related_user?: string
           replying_to?: string | null
           role?: string | null
-          sent_by?: string
         }
         Update: {
           chat?: string
+          content?: Json | null
           created_at?: string
           id?: string
-          message?: Json | null
+          related_user?: string
           replying_to?: string | null
           role?: string | null
-          sent_by?: string
         }
         Relationships: [
           {
@@ -151,17 +151,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "Messages_related_user_fkey"
+            columns: ["related_user"]
+            isOneToOne: false
+            referencedRelation: "Account"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "Messages_replying_to_fkey"
             columns: ["replying_to"]
             isOneToOne: false
             referencedRelation: "Chat"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "Messages_sent_by_fkey"
-            columns: ["sent_by"]
-            isOneToOne: false
-            referencedRelation: "Account"
             referencedColumns: ["id"]
           },
         ]
